@@ -21,6 +21,9 @@ namespace Meshes
             this.entity = new(world, existingEntity);
         }
 
+        /// <summary>
+        /// Creates an empty mesh entity.
+        /// </summary>
         public Mesh(World world)
         {
             entity = new(world);

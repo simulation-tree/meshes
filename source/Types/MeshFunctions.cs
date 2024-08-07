@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Numerics;
 using Meshes;
+using Meshes.Components;
 using Unmanaged.Collections;
 
 public static class MeshFunctions
@@ -122,6 +123,12 @@ public static class MeshFunctions
         }
 
         return mesh.GetList<T, MeshVertexPosition>().Count;
+    }
+
+    public static uint GetVersion<T>(this T mesh) where T : IMesh
+    {
+        IsMesh component = mesh.GetComponent<T, IsMesh>();
+        return component.version;
     }
 
     public static (Vector3 min, Vector3 max) GetBounds<T>(this T mesh) where T : IMesh

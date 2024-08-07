@@ -43,5 +43,22 @@ namespace Meshes.Tests
             Assert.That(bounds.min, Is.EqualTo(new Vector3(0, 0, 0)));
             Assert.That(bounds.max, Is.EqualTo(new Vector3(1, 1, 0)));
         }
+
+        [Test]
+        public void CheckMeshCollection()
+        {
+            using World world = new();
+            Mesh mesh = new(world);
+            Mesh.Collection<Vector3> positions = mesh.CreatePositions();
+            positions.Add(new(0f, 0f, 0f));
+            positions.Add(new(1f, 0f, 0f));
+            positions.Add(new(1f, 1f, 0f));
+
+            Assert.That(mesh.GetVersion(), Is.EqualTo(3));
+            Assert.That(positions.Count, Is.EqualTo(3));
+            mesh.AddTriangle(0, 1, 2);
+
+            Assert.That(mesh.GetVertexCount(), Is.EqualTo(3));
+        }
     }
 }
