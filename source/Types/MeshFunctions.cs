@@ -78,6 +78,12 @@ public static class MeshFunctions
         return mask;
     }
 
+    public unsafe static Mesh.Collection<uint> GetIndices<T>(this T mesh) where T : IMesh
+    {
+        UnsafeList* list = (UnsafeList*)mesh.GetList<T, uint>().AsPointer();
+        return new(list, new(mesh.World, mesh.Value));
+    }
+
     public unsafe static Mesh.Collection<Vector3> GetPositions<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, MeshVertexPosition>().AsPointer();
@@ -123,6 +129,11 @@ public static class MeshFunctions
         }
 
         return mesh.GetList<T, MeshVertexPosition>().Count;
+    }
+
+    public static uint GetIndexCount<T>(this T mesh) where T : IMesh
+    {
+        return mesh.GetList<T, uint>().Count;
     }
 
     public static uint GetVersion<T>(this T mesh) where T : IMesh
@@ -223,6 +234,12 @@ public static class MeshFunctions
         list.AddRange(indices);
     }
 
+    public static void AddIndex<T>(this T mesh, uint index) where T : IMesh
+    {
+        UnmanagedList<uint> list = mesh.GetList<T, uint>();
+        list.Add(index);
+    }
+
     public static void AddTriangle<T>(this T mesh, uint a, uint b, uint c) where T : IMesh
     {
         UnmanagedList<uint> list = mesh.GetList<T, uint>();
@@ -296,17 +313,17 @@ public static class MeshFunctions
         return true;
     }
 
-    public static uint Build<T>(this T mesh, UnmanagedList<float> list) where T : IMesh
+    public static uint Assemble<T>(this T mesh, UnmanagedList<float> vertexData) where T : IMesh
     {
         Mesh.ChannelMask mask = mesh.GetChannelMask();
-        return Build(mesh, list, mask);
+        return Assemble(mesh, vertexData, mask);
     }
 
     /// <summary>
-    /// Appends all vertex data that fits the given channels mask.
+    /// Builds a vertex buffer from the chosen data in the mesh/
     /// </summary>
-    /// <returns>Amount of vertices appended.</returns>
-    public static uint Build<T>(this T mesh, UnmanagedList<float> list, Mesh.ChannelMask mask) where T : IMesh
+    /// <returns>Amount of vertex positions.</returns>
+    public static uint Assemble<T>(this T mesh, UnmanagedList<float> vertexData, Mesh.ChannelMask mask) where T : IMesh
     {
         uint vertexCount = mesh.GetVertexCount();
         UnmanagedList<MeshVertexPosition> positions = default;
@@ -400,49 +417,49 @@ public static class MeshFunctions
             if (wantsPosition)
             {
                 Vector3 position = positions[i].value;
-                list.Add(position.X);
-                list.Add(position.Y);
-                list.Add(position.Z);
+                vertexData.Add(position.X);
+                vertexData.Add(position.Y);
+                vertexData.Add(position.Z);
             }
 
             if (wantsUvs)
             {
                 Vector2 uv = uvs[i].value;
-                list.Add(uv.X);
-                list.Add(uv.Y);
+                vertexData.Add(uv.X);
+                vertexData.Add(uv.Y);
             }
 
             if (wantsNormals)
             {
                 Vector3 normal = normals[i].value;
-                list.Add(normal.X);
-                list.Add(normal.Y);
-                list.Add(normal.Z);
+                vertexData.Add(normal.X);
+                vertexData.Add(normal.Y);
+                vertexData.Add(normal.Z);
             }
 
             if (wantsTangents)
             {
                 Vector3 tangent = tangents[i].value;
-                list.Add(tangent.X);
-                list.Add(tangent.Y);
-                list.Add(tangent.Z);
+                vertexData.Add(tangent.X);
+                vertexData.Add(tangent.Y);
+                vertexData.Add(tangent.Z);
             }
 
             if (wantsBitangents)
             {
                 Vector3 bitangent = bitangents[i].value;
-                list.Add(bitangent.X);
-                list.Add(bitangent.Y);
-                list.Add(bitangent.Z);
+                vertexData.Add(bitangent.X);
+                vertexData.Add(bitangent.Y);
+                vertexData.Add(bitangent.Z);
             }
 
             if (wantsColors)
             {
                 Vector4 color = colors[i].value;
-                list.Add(color.X);
-                list.Add(color.Y);
-                list.Add(color.Z);
-                list.Add(color.W);
+                vertexData.Add(color.X);
+                vertexData.Add(color.Y);
+                vertexData.Add(color.Z);
+                vertexData.Add(color.W);
             }
         }
 
