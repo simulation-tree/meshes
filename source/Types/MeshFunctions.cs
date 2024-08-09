@@ -81,43 +81,43 @@ public static class MeshFunctions
     public unsafe static Mesh.Collection<uint> GetIndices<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, uint>().AsPointer();
-        return new(list, new(mesh.World, mesh.Value));
+        return new(list, mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector3> GetPositions<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, MeshVertexPosition>().AsPointer();
-        return new(list, new(mesh.World, mesh.Value));
+        return new(list, mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector2> GetUVs<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, MeshVertexUV>().AsPointer();
-        return new(list, new(mesh.World, mesh.Value));
+        return new(list, mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector3> GetNormals<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, MeshVertexNormal>().AsPointer();
-        return new(list, new(mesh.World, mesh.Value));
+        return new(list, mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector3> GetTangents<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, MeshVertexTangent>().AsPointer();
-        return new(list, new(mesh.World, mesh.Value));
+        return new(list, mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector3> GetBiTangents<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, MeshVertexBitangent>().AsPointer();
-        return new(list, new(mesh.World, mesh.Value));
+        return new(list, mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector4> GetColors<T>(this T mesh) where T : IMesh
     {
         UnsafeList* list = (UnsafeList*)mesh.GetList<T, MeshVertexColor>().AsPointer();
-        return new(list, new(mesh.World, mesh.Value));
+        return new(list, mesh.AsEntity());
     }
 
     public static uint GetVertexCount<T>(this T mesh) where T : IMesh
@@ -170,7 +170,7 @@ public static class MeshFunctions
         }
 
         UnmanagedList<MeshVertexPosition> list = mesh.CreateList<T, MeshVertexPosition>();
-        return new((UnsafeList*)list.AsPointer(), new(mesh.World, mesh.Value));
+        return new((UnsafeList*)list.AsPointer(), mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector2> CreateUVs<T>(this T mesh) where T : IMesh
@@ -181,7 +181,7 @@ public static class MeshFunctions
         }
 
         UnmanagedList<MeshVertexUV> list = mesh.CreateList<T, MeshVertexUV>();
-        return new((UnsafeList*)list.AsPointer(), new(mesh.World, mesh.Value));
+        return new((UnsafeList*)list.AsPointer(), mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector3> CreateNormals<T>(this T mesh) where T : IMesh
@@ -192,7 +192,7 @@ public static class MeshFunctions
         }
 
         UnmanagedList<MeshVertexNormal> list = mesh.CreateList<T, MeshVertexNormal>();
-        return new((UnsafeList*)list.AsPointer(), new(mesh.World, mesh.Value));
+        return new((UnsafeList*)list.AsPointer(), mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector3> CreateTangents<T>(this T mesh) where T : IMesh
@@ -203,7 +203,7 @@ public static class MeshFunctions
         }
 
         UnmanagedList<MeshVertexTangent> list = mesh.CreateList<T, MeshVertexTangent>();
-        return new((UnsafeList*)list.AsPointer(), new(mesh.World, mesh.Value));
+        return new((UnsafeList*)list.AsPointer(), mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector3> CreateBiTangents<T>(this T mesh) where T : IMesh
@@ -214,7 +214,7 @@ public static class MeshFunctions
         }
 
         UnmanagedList<MeshVertexBitangent> list = mesh.CreateList<T, MeshVertexBitangent>();
-        return new((UnsafeList*)list.AsPointer(), new(mesh.World, mesh.Value));
+        return new((UnsafeList*)list.AsPointer(), mesh.AsEntity());
     }
 
     public unsafe static Mesh.Collection<Vector4> CreateColors<T>(this T mesh) where T : IMesh
@@ -225,7 +225,7 @@ public static class MeshFunctions
         }
 
         UnmanagedList<MeshVertexColor> list = mesh.CreateList<T, MeshVertexColor>();
-        return new((UnsafeList*)list.AsPointer(), new(mesh.World, mesh.Value));
+        return new((UnsafeList*)list.AsPointer(), mesh.AsEntity());
     }
 
     public static void AddIndices<T>(this T mesh, ReadOnlySpan<uint> indices) where T : IMesh

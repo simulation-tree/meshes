@@ -11,7 +11,7 @@ namespace Meshes
 {
     public readonly struct Mesh : IMesh, IDisposable
     {
-        public readonly Entity entity;
+        private readonly Entity entity;
 
         eint IEntity.Value => entity.value;
         World IEntity.World => entity.world;
