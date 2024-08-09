@@ -1,7 +1,7 @@
-﻿using System;
-using System.Numerics;
-using Meshes;
+﻿using Meshes;
 using Meshes.Components;
+using System;
+using System.Numerics;
 using Unmanaged.Collections;
 
 public static class MeshFunctions
@@ -301,7 +301,7 @@ public static class MeshFunctions
         {
             return false;
         }
-        else if (channel == Mesh.Channel.Bitangent && !HasBiTangents(mesh))
+        else if (channel == Mesh.Channel.BiTangent && !HasBiTangents(mesh))
         {
             return false;
         }
@@ -320,7 +320,7 @@ public static class MeshFunctions
     }
 
     /// <summary>
-    /// Builds a vertex buffer from the chosen data in the mesh/
+    /// Builds a vertex buffer from the chosen data in the mesh.
     /// </summary>
     /// <returns>Amount of vertex positions.</returns>
     public static uint Assemble<T>(this T mesh, UnmanagedList<float> vertexData, Mesh.ChannelMask mask) where T : IMesh
@@ -464,5 +464,19 @@ public static class MeshFunctions
         }
 
         return vertexCount;
+    }
+
+    public static Mesh.ChannelMask AddChannel(ref this Mesh.ChannelMask mask, Mesh.Channel channel)
+    {
+        return channel switch
+        {
+            Mesh.Channel.Position => mask |= Mesh.ChannelMask.Positions,
+            Mesh.Channel.UV => mask |= Mesh.ChannelMask.UVs,
+            Mesh.Channel.Normal => mask |= Mesh.ChannelMask.Normals,
+            Mesh.Channel.Tangent => mask |= Mesh.ChannelMask.Tangents,
+            Mesh.Channel.BiTangent => mask |= Mesh.ChannelMask.Bitangents,
+            Mesh.Channel.Color => mask |= Mesh.ChannelMask.Colors,
+            _ => throw new NotSupportedException($"Unsupported channel {channel}")
+        };
     }
 }

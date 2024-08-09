@@ -54,7 +54,7 @@ namespace Meshes
                 Channel.UV => RuntimeType.Get<Vector2>(),
                 Channel.Normal => RuntimeType.Get<Vector3>(),
                 Channel.Tangent => RuntimeType.Get<Vector3>(),
-                Channel.Bitangent => RuntimeType.Get<Vector3>(),
+                Channel.BiTangent => RuntimeType.Get<Vector3>(),
                 Channel.Color => RuntimeType.Get<Vector4>(),
                 _ => throw new NotSupportedException($"Unsupported channel {channel}")
             };
@@ -79,6 +79,11 @@ namespace Meshes
             {
                 this.list = new(list);
                 this.entity = entity;
+            }
+
+            public readonly ReadOnlySpan<T> AsSpan()
+            {
+                return list.AsSpan();
             }
 
             private readonly void Modified()
@@ -174,7 +179,7 @@ namespace Meshes
             UV = 1,
             Normal = 2,
             Tangent = 3,
-            Bitangent = 4,
+            BiTangent = 4,
             Color = 5
         }
     }
