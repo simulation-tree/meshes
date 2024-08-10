@@ -60,6 +60,8 @@ namespace Meshes
             };
         }
         
+        //todo: efficiency: this can be better optimized by batching modifications, then incrementing version when changes are submitted
+        //rather than on every individual operation
         public readonly struct Collection<T> : IList<T> where T : unmanaged, IEquatable<T>
         {
             private readonly UnmanagedList<T> list;
@@ -68,7 +70,11 @@ namespace Meshes
             public readonly T this[uint index]
             {
                 get => list[index];
-                set => list[index] = value;
+                set
+                {
+                    list[index] = value;
+                    Modified();
+                }
             }
 
             public readonly int Count => (int)list.Count;
