@@ -65,15 +65,21 @@ namespace Meshes
             private readonly UnmanagedList<T> list;
             private readonly Entity entity;
 
-            public readonly T this[int index]
+            public readonly T this[uint index]
             {
-                get => list[(uint)index];
-                set => list[(uint)index] = value;
+                get => list[index];
+                set => list[index] = value;
             }
 
             public readonly int Count => (int)list.Count;
 
             bool ICollection<T>.IsReadOnly => false;
+
+            T IList<T>.this[int index]
+            {
+                get => list[(uint)index];
+                set => list[(uint)index] = value;
+            }
 
             internal unsafe Collection(UnsafeList* list, Entity entity)
             {

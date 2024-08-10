@@ -313,19 +313,12 @@ public static class MeshFunctions
         return true;
     }
 
-    public static uint Assemble<T>(this T mesh, UnmanagedList<float> vertexData) where T : IMesh
-    {
-        Mesh.ChannelMask mask = mesh.GetChannelMask();
-        return Assemble(mesh, vertexData, mask);
-    }
-
     /// <summary>
-    /// Builds a vertex buffer from the chosen data in the mesh.
+    /// Appends all vertex data to the given list, in the order of channels.
     /// </summary>
-    /// <returns>Amount of vertex positions.</returns>
-    public static uint Assemble<T>(this T mesh, UnmanagedList<float> vertexData, Mesh.ChannelMask mask) where T : IMesh
+    /// <returns>Size of a vertex in floats.</returns>
+    public static uint Assemble<T>(this T mesh, UnmanagedList<float> vertexData, ReadOnlySpan<Mesh.Channel> channels) where T : IMesh
     {
-        uint vertexCount = mesh.GetVertexCount();
         UnmanagedList<MeshVertexPosition> positions = default;
         UnmanagedList<MeshVertexUV> uvs = default;
         UnmanagedList<MeshVertexNormal> normals = default;
@@ -333,9 +326,21 @@ public static class MeshFunctions
         UnmanagedList<MeshVertexBitangent> bitangents = default;
         UnmanagedList<MeshVertexColor> colors = default;
 
+        static bool Contains(ReadOnlySpan<Mesh.Channel> channels, Mesh.Channel channel)
+        {
+            for (int i = 0; i < channels.Length; i++)
+            {
+                if (channels[i] == channel)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         //throw if any channel is missing
-        bool wantsPosition = (mask & Mesh.ChannelMask.Positions) != 0;
-        if (wantsPosition)
+        if (Contains(channels, Mesh.Channel.Position))
         {
             if (!HasPositions(mesh))
             {
@@ -347,8 +352,7 @@ public static class MeshFunctions
             }
         }
 
-        bool wantsUvs = (mask & Mesh.ChannelMask.UVs) != 0;
-        if (wantsUvs)
+        if (Contains(channels, Mesh.Channel.UV))
         {
             if (!HasUVs(mesh))
             {
@@ -360,8 +364,7 @@ public static class MeshFunctions
             }
         }
 
-        bool wantsNormals = (mask & Mesh.ChannelMask.Normals) != 0;
-        if (wantsNormals)
+        if (Contains(channels, Mesh.Channel.Normal))
         {
             if (!HasNormals(mesh))
             {
@@ -373,8 +376,7 @@ public static class MeshFunctions
             }
         }
 
-        bool wantsTangents = (mask & Mesh.ChannelMask.Tangents) != 0;
-        if (wantsTangents)
+        if (Contains(channels, Mesh.Channel.Tangent))
         {
             if (!HasTangents(mesh))
             {
@@ -386,8 +388,7 @@ public static class MeshFunctions
             }
         }
 
-        bool wantsBitangents = (mask & Mesh.ChannelMask.Bitangents) != 0;
-        if (wantsBitangents)
+        if (Contains(channels, Mesh.Channel.BiTangent))
         {
             if (!HasBiTangents(mesh))
             {
@@ -399,8 +400,7 @@ public static class MeshFunctions
             }
         }
 
-        bool wantsColors = (mask & Mesh.ChannelMask.Colors) != 0;
-        if (wantsColors)
+        if (Contains(channels, Mesh.Channel.Color))
         {
             if (!HasColors(mesh))
             {
@@ -412,58 +412,88 @@ public static class MeshFunctions
             }
         }
 
+        uint vertexCount = mesh.GetVertexCount();
         for (uint i = 0; i < vertexCount; i++)
         {
-            if (wantsPosition)
+            for (int c = 0; c < channels.Length; c++)
             {
-                Vector3 position = positions[i].value;
-                vertexData.Add(position.X);
-                vertexData.Add(position.Y);
-                vertexData.Add(position.Z);
-            }
-
-            if (wantsUvs)
-            {
-                Vector2 uv = uvs[i].value;
-                vertexData.Add(uv.X);
-                vertexData.Add(uv.Y);
-            }
-
-            if (wantsNormals)
-            {
-                Vector3 normal = normals[i].value;
-                vertexData.Add(normal.X);
-                vertexData.Add(normal.Y);
-                vertexData.Add(normal.Z);
-            }
-
-            if (wantsTangents)
-            {
-                Vector3 tangent = tangents[i].value;
-                vertexData.Add(tangent.X);
-                vertexData.Add(tangent.Y);
-                vertexData.Add(tangent.Z);
-            }
-
-            if (wantsBitangents)
-            {
-                Vector3 bitangent = bitangents[i].value;
-                vertexData.Add(bitangent.X);
-                vertexData.Add(bitangent.Y);
-                vertexData.Add(bitangent.Z);
-            }
-
-            if (wantsColors)
-            {
-                Vector4 color = colors[i].value;
-                vertexData.Add(color.X);
-                vertexData.Add(color.Y);
-                vertexData.Add(color.Z);
-                vertexData.Add(color.W);
+                Mesh.Channel channel = channels[c];
+                if (channel == Mesh.Channel.Position)
+                {
+                    Vector3 position = positions[i].value;
+                    vertexData.Add(position.X);
+                    vertexData.Add(position.Y);
+                    vertexData.Add(position.Z);
+                }
+                else if (channel == Mesh.Channel.UV)
+                {
+                    Vector2 uv = uvs[i].value;
+                    vertexData.Add(uv.X);
+                    vertexData.Add(uv.Y);
+                }
+                else if (channel == Mesh.Channel.Normal)
+                {
+                    Vector3 normal = normals[i].value;
+                    vertexData.Add(normal.X);
+                    vertexData.Add(normal.Y);
+                    vertexData.Add(normal.Z);
+                }
+                else if (channel == Mesh.Channel.Tangent)
+                {
+                    Vector3 tangent = tangents[i].value;
+                    vertexData.Add(tangent.X);
+                    vertexData.Add(tangent.Y);
+                    vertexData.Add(tangent.Z);
+                }
+                else if (channel == Mesh.Channel.BiTangent)
+                {
+                    Vector3 bitangent = bitangents[i].value;
+                    vertexData.Add(bitangent.X);
+                    vertexData.Add(bitangent.Y);
+                    vertexData.Add(bitangent.Z);
+                }
+                else if (channel == Mesh.Channel.Color)
+                {
+                    Vector4 color = colors[i].value;
+                    vertexData.Add(color.X);
+                    vertexData.Add(color.Y);
+                    vertexData.Add(color.Z);
+                    vertexData.Add(color.W);
+                }
             }
         }
 
-        return vertexCount;
+        uint vertexSize = 0;
+        for (int c = 0; c < channels.Length; c++)
+        {
+            Mesh.Channel channel = channels[c];
+            if (channel == Mesh.Channel.Position)
+            {
+                vertexSize += 3;
+            }
+            else if (channel == Mesh.Channel.UV)
+            {
+                vertexSize += 2;
+            }
+            else if (channel == Mesh.Channel.Normal)
+            {
+                vertexSize += 3;
+            }
+            else if (channel == Mesh.Channel.Tangent)
+            {
+                vertexSize += 3;
+            }
+            else if (channel == Mesh.Channel.BiTangent)
+            {
+                vertexSize += 3;
+            }
+            else if (channel == Mesh.Channel.Color)
+            {
+                vertexSize += 4;
+            }
+        }
+
+        return vertexSize;
     }
 
     public static Mesh.ChannelMask AddChannel(ref this Mesh.ChannelMask mask, Mesh.Channel channel)
