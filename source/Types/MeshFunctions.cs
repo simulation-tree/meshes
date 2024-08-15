@@ -1,4 +1,5 @@
-﻿using Meshes;
+﻿using Data;
+using Meshes;
 using Meshes.Components;
 using System;
 using System.Numerics;
@@ -36,6 +37,9 @@ public static class MeshFunctions
         return mesh.ContainsList<T, MeshVertexColor>();
     }
 
+    /// <summary>
+    /// Retrieves the available channels on the mesh.
+    /// </summary>
     public static Mesh.ChannelMask GetChannelMask<T>(this T mesh) where T : IMesh
     {
         bool hasPositions = mesh.HasPositions();
@@ -217,7 +221,7 @@ public static class MeshFunctions
         return new((UnsafeList*)list.AsPointer(), mesh.AsEntity());
     }
 
-    public unsafe static Mesh.Collection<Vector4> CreateColors<T>(this T mesh) where T : IMesh
+    public unsafe static Mesh.Collection<Color> CreateColors<T>(this T mesh) where T : IMesh
     {
         if (HasColors(mesh))
         {
@@ -314,9 +318,10 @@ public static class MeshFunctions
     }
 
     /// <summary>
-    /// Appends all vertex data to the given list, in the order of channels.
+    /// Appends vertex data into the given list, in the order of the channels given.
+    /// <para>If the mesh does not contain the data for a specific channel, it will use defaults.</para>
     /// </summary>
-    /// <returns>Size of a vertex in floats.</returns>
+    /// <returns>How many <c>float</c> values compose a single vertex.</returns>
     public static uint Assemble<T>(this T mesh, UnmanagedList<float> vertexData, ReadOnlySpan<Mesh.Channel> channels) where T : IMesh
     {
         UnmanagedList<MeshVertexPosition> positions = default;
@@ -325,7 +330,12 @@ public static class MeshFunctions
         UnmanagedList<MeshVertexTangent> tangents = default;
         UnmanagedList<MeshVertexBitangent> bitangents = default;
         UnmanagedList<MeshVertexColor> colors = default;
-
+        bool disposePositions = false;
+        bool disposeUVs = false;
+        bool disposeNormals = false;
+        bool disposeTangents = false;
+        bool disposeBiTangents = false;
+        bool disposeColors = false;
         static bool Contains(ReadOnlySpan<Mesh.Channel> channels, Mesh.Channel channel)
         {
             for (int i = 0; i < channels.Length; i++)
@@ -344,7 +354,8 @@ public static class MeshFunctions
         {
             if (!HasPositions(mesh))
             {
-                throw new InvalidOperationException("Mesh does not contain positions.");
+                positions = new();
+                disposePositions = true;
             }
             else
             {
@@ -356,7 +367,8 @@ public static class MeshFunctions
         {
             if (!HasUVs(mesh))
             {
-                throw new InvalidOperationException("Mesh does not contain texture coordinates.");
+                uvs = new();
+                disposeUVs = true;
             }
             else
             {
@@ -368,7 +380,8 @@ public static class MeshFunctions
         {
             if (!HasNormals(mesh))
             {
-                throw new InvalidOperationException("Mesh does not contain normals.");
+                normals = new();
+                disposeNormals = true;
             }
             else
             {
@@ -380,7 +393,8 @@ public static class MeshFunctions
         {
             if (!HasTangents(mesh))
             {
-                throw new InvalidOperationException("Mesh does not contain tangents.");
+                tangents = new();
+                disposeTangents = true;
             }
             else
             {
@@ -392,7 +406,8 @@ public static class MeshFunctions
         {
             if (!HasBiTangents(mesh))
             {
-                throw new InvalidOperationException("Mesh does not contain bitangents.");
+                bitangents = new();
+                disposeBiTangents = true;
             }
             else
             {
@@ -404,7 +419,8 @@ public static class MeshFunctions
         {
             if (!HasColors(mesh))
             {
-                throw new InvalidOperationException("Mesh does not contain colors.");
+                colors = new();
+                disposeColors = true;
             }
             else
             {
@@ -491,6 +507,36 @@ public static class MeshFunctions
             {
                 vertexSize += 4;
             }
+        }
+
+        if (disposePositions)
+        {
+            positions.Dispose();
+        }
+
+        if (disposeUVs)
+        {
+            uvs.Dispose();
+        }
+
+        if (disposeNormals)
+        {
+            normals.Dispose();
+        }
+
+        if (disposeTangents)
+        {
+            tangents.Dispose();
+        }
+
+        if (disposeBiTangents)
+        {
+            bitangents.Dispose();
+        }
+
+        if (disposeColors)
+        {
+            colors.Dispose();
         }
 
         return vertexSize;

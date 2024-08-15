@@ -1,4 +1,5 @@
-﻿using Simulation;
+﻿using Data;
+using Simulation;
 using System;
 using System.Numerics;
 using Unmanaged;
@@ -20,7 +21,7 @@ namespace Meshes.Tests
             using World world = new();
             Mesh mesh = new(world);
             Mesh.Collection<Vector3> positions = mesh.CreatePositions();
-            Mesh.Collection<Vector4> colors = mesh.CreateColors();
+            Mesh.Collection<Color> colors = mesh.CreateColors();
             Mesh.Collection<Vector2> uvs = mesh.CreateUVs();
             positions.Add(new(0f, 0f, 0f));
             positions.Add(new(1f, 0f, 0f));
@@ -74,7 +75,7 @@ namespace Meshes.Tests
             positions.Add(new(1f, 1f, 0f));
             positions.Add(new(0f, 1f, 0f));
 
-            Mesh.Collection<Vector4> colors = quadMesh.CreateColors();
+            Mesh.Collection<Color> colors = quadMesh.CreateColors();
             colors.Add(new(1f, 0f, 0f, 1f));
             colors.Add(new(0f, 1f, 0f, 1f));
             colors.Add(new(0f, 0f, 1f, 1f));
