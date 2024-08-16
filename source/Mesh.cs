@@ -1,4 +1,6 @@
-﻿using Meshes.Components;
+﻿using Data.Components;
+using Data.Events;
+using Meshes.Components;
 using Simulation;
 using System;
 using System.Collections;
@@ -29,6 +31,21 @@ namespace Meshes
             entity = new(world);
             entity.AddComponent(new IsMesh());
             entity.CreateList<Entity, uint>();
+        }
+
+        /// <summary>
+        /// Creates a mesh entity from a model address.
+        /// </summary>
+        public Mesh(World world, FixedString modelAddress, uint meshIndex = 0)
+        {
+            entity = new(world);
+            entity.AddComponent(new IsMesh());
+            entity.AddComponent(new IsDataRequest(modelAddress));
+            entity.AddComponent(new IsMeshRequest(meshIndex));
+            entity.CreateList<Entity, uint>();
+
+            world.Submit(new DataUpdate());
+            world.Poll();
         }
 
         public readonly void Dispose()

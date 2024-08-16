@@ -1,12 +1,26 @@
 ﻿using Data;
+using Data.Components;
 using Meshes;
 using Meshes.Components;
 using System;
 using System.Numerics;
+using Unmanaged;
 using Unmanaged.Collections;
 
 public static class MeshFunctions
 {
+    public static bool IsRequesting<T>(this T mesh) where T : IMesh
+    {
+        return mesh.ContainsComponent<T, IsMeshRequest>();
+    }
+
+    public static (FixedString, uint) GetRequestAddress<T>(this T mesh) where T : IMesh
+    {
+        IsDataRequest dataRequest = mesh.GetComponent<T, IsDataRequest>();
+        IsMeshRequest meshRequest = mesh.GetComponent<T, IsMeshRequest>();
+        return (dataRequest.address, meshRequest.meshIndex);
+    }
+
     public static bool HasPositions<T>(this T mesh) where T : IMesh
     {
         return mesh.ContainsList<T, MeshVertexPosition>();
