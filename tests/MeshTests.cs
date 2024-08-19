@@ -35,12 +35,12 @@ namespace Meshes.Tests
             uvs.Add(new(1f, 0f));
             uvs.Add(new(1f, 1f));
             uvs.Add(new(0f, 1f));
-            Assert.That(mesh.HasPositions(), Is.True);
-            Assert.That(mesh.HasNormals(), Is.False);
-            Assert.That(mesh.HasUVs(), Is.True);
-            Assert.That(mesh.HasColors(), Is.True);
-            Assert.That(mesh.HasTangents(), Is.False);
-            Assert.That(mesh.GetVertexCount(), Is.EqualTo(4));
+            Assert.That(mesh.HasPositions, Is.True);
+            Assert.That(mesh.HasNormals, Is.False);
+            Assert.That(mesh.HasUVs, Is.True);
+            Assert.That(mesh.HasColors, Is.True);
+            Assert.That(mesh.HasTangents, Is.False);
+            Assert.That(mesh.VertexCount, Is.EqualTo(4));
 
             (Vector3 min, Vector3 max) bounds = mesh.GetBounds();
             Assert.That(bounds.min, Is.EqualTo(new Vector3(0, 0, 0)));
@@ -61,7 +61,7 @@ namespace Meshes.Tests
             Assert.That(positions.Count, Is.EqualTo(3));
             mesh.AddTriangle(0, 1, 2);
 
-            Assert.That(mesh.GetVertexCount(), Is.EqualTo(3));
+            Assert.That(mesh.VertexCount, Is.EqualTo(3));
         }
 
         [Test]

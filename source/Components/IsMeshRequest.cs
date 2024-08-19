@@ -1,14 +1,18 @@
-﻿namespace Meshes.Components
+﻿using Simulation;
+
+namespace Meshes.Components
 {
     public struct IsMeshRequest
     {
+        public rint modelReference;
         public uint meshIndex;
-        public bool changed;
+        public uint version;
 
-        public IsMeshRequest(uint meshIndex)
+        public IsMeshRequest(rint modelReference, uint meshIndex)
         {
+            version = 1;
+            this.modelReference = modelReference;
             this.meshIndex = meshIndex;
-            changed = true;
         }
     }
 }

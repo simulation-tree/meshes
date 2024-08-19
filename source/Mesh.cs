@@ -1,6 +1,5 @@
 ﻿using Data;
 using Data.Components;
-using Data.Events;
 using Meshes.Components;
 using Simulation;
 using System;
@@ -16,6 +15,143 @@ namespace Meshes
     {
         private readonly Entity entity;
 
+        public readonly FixedString Name => entity.GetComponent<Name>().value;
+        public readonly bool HasPositions => entity.ContainsList<MeshVertexPosition>();
+        public readonly bool HasUVs => entity.ContainsList<MeshVertexUV>();
+        public readonly bool HasNormals => entity.ContainsList<MeshVertexNormal>();
+        public readonly bool HasTangents => entity.ContainsList<MeshVertexTangent>();
+        public readonly bool HasBiTangents => entity.ContainsList<MeshVertexBiTangent>();
+        public readonly bool HasColors => entity.ContainsList<MeshVertexColor>();
+
+        public readonly uint VertexCount
+        {
+            get
+            {
+                bool hasPositions = HasPositions;
+                if (!hasPositions)
+                {
+                    return 0;
+                }
+
+                return entity.GetList<MeshVertexPosition>().Count;
+            }
+        }
+
+        public readonly uint IndexCount => entity.GetList<uint>().Count;
+
+        public readonly unsafe Collection<uint> Indices
+        {
+            get
+            {
+                UnsafeList* list = (UnsafeList*)entity.GetList<uint>().AsPointer();
+                return new(list, entity);
+            }
+        }
+
+        public readonly unsafe Collection<Vector3> Positions
+        {
+            get
+            {
+                UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexPosition>().AsPointer();
+                return new(list, entity);
+            }
+        }
+
+        public unsafe Collection<Vector2> UVs
+        {
+            get
+            {
+                UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexUV>().AsPointer();
+                return new(list, entity);
+            }
+        }
+
+        public unsafe Collection<Vector3> Normals
+        {
+            get
+            {
+                UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexNormal>().AsPointer();
+                return new(list, entity);
+            }
+        }
+
+        public readonly unsafe Collection<Vector3> Tangents
+        {
+            get
+            {
+                UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexTangent>().AsPointer();
+                return new(list, entity);
+            }
+        }
+
+        public readonly unsafe Collection<Vector3> BiTangents
+        {
+            get
+            {
+                UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexBiTangent>().AsPointer();
+                return new(list, entity);
+            }
+        }
+
+        public readonly unsafe Collection<Vector4> Colors
+        {
+            get
+            {
+                UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexColor>().AsPointer();
+                return new(list, entity);
+            }
+        }
+
+        public readonly bool IsLoaded => entity.ContainsComponent<IsMesh>();
+
+        /// <summary>
+        /// Retrieves the available channels on the mesh.
+        /// </summary>
+        public readonly ChannelMask Channels
+        {
+            get
+            {
+                bool hasPositions = HasPositions;
+                bool hasUVs = HasUVs;
+                bool hasNormals = HasNormals;
+                bool hasTangents = HasTangents;
+                bool hasBiTangents = HasBiTangents;
+                bool hasColors = HasColors;
+                ChannelMask mask = default;
+                if (hasPositions)
+                {
+                    mask |= ChannelMask.Positions;
+                }
+
+                if (hasUVs)
+                {
+                    mask |= ChannelMask.UVs;
+                }
+
+                if (hasNormals)
+                {
+                    mask |= ChannelMask.Normals;
+                }
+
+                if (hasTangents)
+                {
+                    mask |= ChannelMask.Tangents;
+                }
+
+                if (hasBiTangents)
+                {
+                    mask |= ChannelMask.Tangents;
+                }
+
+                if (hasColors)
+                {
+                    mask |= ChannelMask.Colors;
+                }
+
+                return mask;
+            }
+        }
+
         eint IEntity.Value => entity.value;
         World IEntity.World => entity.world;
 
@@ -25,7 +161,7 @@ namespace Meshes
         }
 
         /// <summary>
-        /// Creates an empty mesh entity.
+        /// Creates a blank mesh with no data/channels.
         /// </summary>
         public Mesh(World world)
         {
@@ -35,18 +171,13 @@ namespace Meshes
         }
 
         /// <summary>
-        /// Creates a mesh entity from a model address.
+        /// Creates a mesh+request from an existing model and a sub mesh index.
         /// </summary>
-        public Mesh(World world, FixedString modelAddress, uint meshIndex = 0)
+        public Mesh(World world, Entity modelEntity, uint meshIndex = 0)
         {
             entity = new(world);
-            entity.AddComponent(new IsMesh());
-            entity.AddComponent(new IsDataRequest(modelAddress));
-            entity.AddComponent(new IsMeshRequest(meshIndex));
-            entity.CreateList<uint>();
-
-            world.Submit(new DataUpdate());
-            world.Poll();
+            rint modelReference = entity.AddReference(modelEntity);
+            entity.AddComponent(new IsMeshRequest(modelReference, meshIndex));
         }
 
         public readonly void Dispose()
@@ -64,151 +195,6 @@ namespace Meshes
             return new(world, RuntimeType.Get<IsMesh>());
         }
 
-        public readonly unsafe Collection<uint> GetIndices()
-        {
-            UnsafeList* list = (UnsafeList*)entity.GetList<uint>().AsPointer();
-            return new(list, entity);
-        }
-
-        public readonly unsafe Collection<Vector3> GetPositions()
-        {
-            UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexPosition>().AsPointer();
-            return new(list, entity);
-        }
-
-        public unsafe Collection<Vector2> GetUVs()
-        {
-            UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexUV>().AsPointer();
-            return new(list, entity);
-        }
-
-        public unsafe Collection<Vector3> GetNormals()
-        {
-            UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexNormal>().AsPointer();
-            return new(list, entity);
-        }
-
-        public readonly unsafe Collection<Vector3> GetTangents()
-        {
-            UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexTangent>().AsPointer();
-            return new(list, entity);
-        }
-
-        public readonly unsafe Collection<Vector3> GetBiTangents()
-        {
-            UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexBitangent>().AsPointer();
-            return new(list, entity);
-        }
-
-        public readonly unsafe Collection<Vector4> GetColors()
-        {
-            UnsafeList* list = (UnsafeList*)entity.GetList<MeshVertexColor>().AsPointer();
-            return new(list, entity);
-        }
-
-        public readonly bool IsRequesting()
-        {
-            return entity.ContainsComponent<IsMeshRequest>();
-        }
-
-        public readonly (FixedString, uint) GetRequestAddress()
-        {
-            IsDataRequest dataRequest = entity.GetComponent<IsDataRequest>();
-            IsMeshRequest meshRequest = entity.GetComponent<IsMeshRequest>();
-            return (dataRequest.address, meshRequest.meshIndex);
-        }
-
-        public readonly bool HasPositions()
-        {
-            return entity.ContainsList<MeshVertexPosition>();
-        }
-
-        public readonly bool HasUVs()
-        {
-            return entity.ContainsList<MeshVertexUV>();
-        }
-
-        public readonly bool HasNormals()
-        {
-            return entity.ContainsList<MeshVertexNormal>();
-        }
-
-        public readonly bool HasTangents()
-        {
-            return entity.ContainsList<MeshVertexTangent>();
-        }
-
-        public readonly bool HasBiTangents()
-        {
-            return entity.ContainsList<MeshVertexBitangent>();
-        }
-
-        public readonly bool HasColors()
-        {
-            return entity.ContainsList<MeshVertexColor>();
-        }
-
-        /// <summary>
-        /// Retrieves the available channels on the mesh.
-        /// </summary>
-        public readonly ChannelMask GetChannelMask()
-        {
-            bool hasPositions = HasPositions();
-            bool hasUVs = HasUVs();
-            bool hasNormals = HasNormals();
-            bool hasTangents = HasTangents();
-            bool hasBiTangents = HasBiTangents();
-            bool hasColors = HasColors();
-            ChannelMask mask = default;
-            if (hasPositions)
-            {
-                mask |= ChannelMask.Positions;
-            }
-
-            if (hasUVs)
-            {
-                mask |= ChannelMask.UVs;
-            }
-
-            if (hasNormals)
-            {
-                mask |= ChannelMask.Normals;
-            }
-
-            if (hasTangents)
-            {
-                mask |= ChannelMask.Tangents;
-            }
-
-            if (hasBiTangents)
-            {
-                mask |= ChannelMask.Tangents;
-            }
-
-            if (hasColors)
-            {
-                mask |= ChannelMask.Colors;
-            }
-
-            return mask;
-        }
-
-        public readonly uint GetVertexCount()
-        {
-            bool hasPositions = HasPositions();
-            if (!hasPositions)
-            {
-                return 0;
-            }
-
-            return entity.GetList<MeshVertexPosition>().Count;
-        }
-
-        public readonly uint GetIndexCount()
-        {
-            return entity.GetList<uint>().Count;
-        }
-
         public readonly uint GetVersion()
         {
             IsMesh component = entity.GetComponent<IsMesh>();
@@ -217,7 +203,7 @@ namespace Meshes
 
         public readonly (Vector3 min, Vector3 max) GetBounds()
         {
-            bool hasPositions = HasPositions();
+            bool hasPositions = HasPositions;
             if (hasPositions)
             {
                 UnmanagedList<MeshVertexPosition> positions = entity.GetList<MeshVertexPosition>();
@@ -237,7 +223,7 @@ namespace Meshes
 
         public unsafe readonly Collection<Vector3> CreatePositions()
         {
-            if (HasPositions())
+            if (HasPositions)
             {
                 throw new InvalidOperationException("Mesh already contains positions.");
             }
@@ -248,7 +234,7 @@ namespace Meshes
 
         public unsafe readonly Collection<Vector2> CreateUVs()
         {
-            if (HasUVs())
+            if (HasUVs)
             {
                 throw new InvalidOperationException("Mesh already contains uvs.");
             }
@@ -259,7 +245,7 @@ namespace Meshes
 
         public unsafe readonly Collection<Vector3> CreateNormals()
         {
-            if (HasNormals())
+            if (HasNormals)
             {
                 throw new InvalidOperationException("Mesh already contains normals.");
             }
@@ -270,7 +256,7 @@ namespace Meshes
 
         public unsafe readonly Collection<Vector3> CreateTangents()
         {
-            if (HasTangents())
+            if (HasTangents)
             {
                 throw new InvalidOperationException("Mesh already contains tangents.");
             }
@@ -281,18 +267,18 @@ namespace Meshes
 
         public unsafe readonly Collection<Vector3> CreateBiTangents()
         {
-            if (HasBiTangents())
+            if (HasBiTangents)
             {
                 throw new InvalidOperationException("Mesh already contains bitangents.");
             }
 
-            UnmanagedList<MeshVertexBitangent> list = entity.CreateList<MeshVertexBitangent>();
+            UnmanagedList<MeshVertexBiTangent> list = entity.CreateList<MeshVertexBiTangent>();
             return new((UnsafeList*)list.AsPointer(), entity);
         }
 
         public unsafe readonly Collection<Color> CreateColors()
         {
-            if (HasColors())
+            if (HasColors)
             {
                 throw new InvalidOperationException("Mesh already contains colors.");
             }
@@ -323,32 +309,32 @@ namespace Meshes
 
         public readonly bool ContainsChannel(ChannelMask mask)
         {
-            if ((mask & ChannelMask.Positions) != 0 && !HasPositions())
+            if ((mask & ChannelMask.Positions) != 0 && !HasPositions)
             {
                 return false;
             }
 
-            if ((mask & ChannelMask.UVs) != 0 && !HasUVs())
+            if ((mask & ChannelMask.UVs) != 0 && !HasUVs)
             {
                 return false;
             }
 
-            if ((mask & ChannelMask.Normals) != 0 && !HasNormals())
+            if ((mask & ChannelMask.Normals) != 0 && !HasNormals)
             {
                 return false;
             }
 
-            if ((mask & ChannelMask.Tangents) != 0 && !HasTangents())
+            if ((mask & ChannelMask.Tangents) != 0 && !HasTangents)
             {
                 return false;
             }
 
-            if ((mask & ChannelMask.Bitangents) != 0 && !HasBiTangents())
+            if ((mask & ChannelMask.Bitangents) != 0 && !HasBiTangents)
             {
                 return false;
             }
 
-            if ((mask & ChannelMask.Colors) != 0 && !HasColors())
+            if ((mask & ChannelMask.Colors) != 0 && !HasColors)
             {
                 return false;
             }
@@ -358,27 +344,27 @@ namespace Meshes
 
         public readonly bool ContainsChannel(Channel channel)
         {
-            if (channel == Channel.Position && !HasPositions())
+            if (channel == Channel.Position && !HasPositions)
             {
                 return false;
             }
-            else if (channel == Channel.UV && !HasUVs())
+            else if (channel == Channel.UV && !HasUVs)
             {
                 return false;
             }
-            else if (channel == Channel.Normal && !HasNormals())
+            else if (channel == Channel.Normal && !HasNormals)
             {
                 return false;
             }
-            else if (channel == Channel.Tangent && !HasTangents())
+            else if (channel == Channel.Tangent && !HasTangents)
             {
                 return false;
             }
-            else if (channel == Channel.BiTangent && !HasBiTangents())
+            else if (channel == Channel.BiTangent && !HasBiTangents)
             {
                 return false;
             }
-            else if (channel == Channel.Color && !HasColors())
+            else if (channel == Channel.Color && !HasColors)
             {
                 return false;
             }
@@ -397,7 +383,7 @@ namespace Meshes
             UnmanagedList<MeshVertexUV> uvs = default;
             UnmanagedList<MeshVertexNormal> normals = default;
             UnmanagedList<MeshVertexTangent> tangents = default;
-            UnmanagedList<MeshVertexBitangent> bitangents = default;
+            UnmanagedList<MeshVertexBiTangent> bitangents = default;
             UnmanagedList<MeshVertexColor> colors = default;
             bool disposePositions = false;
             bool disposeUVs = false;
@@ -421,7 +407,7 @@ namespace Meshes
             //throw if any channel is missing
             if (Contains(channels, Channel.Position))
             {
-                if (!HasPositions())
+                if (!HasPositions)
                 {
                     positions = new();
                     disposePositions = true;
@@ -434,7 +420,7 @@ namespace Meshes
 
             if (Contains(channels, Channel.UV))
             {
-                if (!HasUVs())
+                if (!HasUVs)
                 {
                     uvs = new();
                     disposeUVs = true;
@@ -447,7 +433,7 @@ namespace Meshes
 
             if (Contains(channels, Channel.Normal))
             {
-                if (!HasNormals())
+                if (!HasNormals)
                 {
                     normals = new();
                     disposeNormals = true;
@@ -460,7 +446,7 @@ namespace Meshes
 
             if (Contains(channels, Channel.Tangent))
             {
-                if (!HasTangents())
+                if (!HasTangents)
                 {
                     tangents = new();
                     disposeTangents = true;
@@ -473,20 +459,20 @@ namespace Meshes
 
             if (Contains(channels, Channel.BiTangent))
             {
-                if (!HasBiTangents())
+                if (!HasBiTangents)
                 {
                     bitangents = new();
                     disposeBiTangents = true;
                 }
                 else
                 {
-                    bitangents = entity.GetList<MeshVertexBitangent>();
+                    bitangents = entity.GetList<MeshVertexBiTangent>();
                 }
             }
 
             if (Contains(channels, Channel.Color))
             {
-                if (!HasColors())
+                if (!HasColors)
                 {
                     colors = new();
                     disposeColors = true;
@@ -497,7 +483,7 @@ namespace Meshes
                 }
             }
 
-            uint vertexCount = GetVertexCount();
+            uint vertexCount = VertexCount;
             for (uint i = 0; i < vertexCount; i++)
             {
                 for (int c = 0; c < channels.Length; c++)
