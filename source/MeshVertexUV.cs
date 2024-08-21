@@ -10,5 +10,10 @@ namespace Meshes
         {
             this.value = value;
         }
+
+        public MeshVertexUV(float x, float y)
+        {
+            value = new(x, y);
+        }
     }
 }
