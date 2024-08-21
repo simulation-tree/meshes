@@ -11,7 +11,7 @@ using Unmanaged.Collections;
 
 namespace Meshes
 {
-    public readonly struct Mesh : IMesh, IDisposable
+    public readonly struct Mesh : IEntity, IDisposable
     {
         private readonly Entity entity;
 
@@ -101,8 +101,6 @@ namespace Meshes
                 return new(list, entity);
             }
         }
-
-        public readonly bool IsLoaded => entity.ContainsComponent<IsMesh>();
 
         /// <summary>
         /// Retrieves the available channels on the mesh.
