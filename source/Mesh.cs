@@ -150,8 +150,8 @@ namespace Meshes
             }
         }
 
-        eint IEntity.Value => entity.value;
-        World IEntity.World => entity.world;
+        eint IEntity.Value => entity;
+        World IEntity.World => entity;
 
         public Mesh(World world, eint existingEntity)
         {
@@ -659,8 +659,9 @@ namespace Meshes
             internal unsafe Collection(UnsafeList* list, Entity entity)
             {
                 this.list = new(list);
-                ComponentChunk chunk = entity.world.GetComponentChunk(entity.value);
-                component = chunk.GetComponentAddress<IsMesh>(entity.value);
+                World world = entity;
+                ComponentChunk chunk = world.GetComponentChunk(entity);
+                component = chunk.GetComponentAddress<IsMesh>(entity);
             }
 
             public readonly ReadOnlySpan<T> AsSpan()
