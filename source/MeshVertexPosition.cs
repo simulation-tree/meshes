@@ -11,6 +11,11 @@ namespace Meshes
             this.value = value;
         }
 
+        public MeshVertexPosition(float x, float y, float z)
+        {
+            value = new Vector3(x, y, z);
+        }
+
         public static implicit operator Vector3(MeshVertexPosition position) => position.value;
         public static implicit operator MeshVertexPosition(Vector3 position) => new(position);
     }
