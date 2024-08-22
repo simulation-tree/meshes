@@ -153,11 +153,6 @@ namespace Meshes
         eint IEntity.Value => entity;
         World IEntity.World => entity;
 
-        public Mesh(World world, eint existingEntity)
-        {
-            this.entity = new(world, existingEntity);
-        }
-
         /// <summary>
         /// Creates a blank mesh with no data/channels.
         /// </summary>
