@@ -4,15 +4,13 @@ using Meshes.Components;
 using Simulation;
 using Simulation.Unsafe;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Numerics;
 using Unmanaged;
 using Unmanaged.Collections;
 
 namespace Meshes
 {
-    public readonly struct Mesh : IEntity, IDisposable
+    public readonly struct Mesh : IEntity
     {
         private readonly Entity entity;
 
@@ -193,11 +191,6 @@ namespace Meshes
             entity = new(world);
             rint modelReference = entity.AddReference(modelEntity);
             entity.AddComponent(new IsMeshRequest(modelReference, meshIndex));
-        }
-
-        public readonly void Dispose()
-        {
-            entity.Dispose();
         }
 
         public readonly override string ToString()
