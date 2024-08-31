@@ -170,7 +170,7 @@ namespace Meshes
             }
         }
 
-        eint IEntity.Value => entity;
+        uint IEntity.Value => entity;
         World IEntity.World => entity;
 
         /// <summary>
@@ -597,12 +597,11 @@ namespace Meshes
         //rather than on every individual operation
         public unsafe struct Collection<T> where T : unmanaged, IEquatable<T>
         {
-            private readonly eint entity;
+            private readonly uint entity;
             private readonly World world;
             private void* array;
             private uint length;
             private readonly RuntimeType arrayType;
-            private readonly nint component;
 
             public readonly T this[uint index]
             {
@@ -626,8 +625,6 @@ namespace Meshes
                 this.entity = entity;
                 this.arrayType = arrayType;
                 this.world = entity;
-                ComponentChunk chunk = world.GetComponentChunk(entity);
-                component = chunk.GetComponentAddress<IsMesh>(entity);
             }
 
             public readonly Span<T> AsSpan()
@@ -637,14 +634,14 @@ namespace Meshes
 
             private unsafe readonly void Modified()
             {
-                ref IsMesh mesh = ref System.Runtime.CompilerServices.Unsafe.AsRef<IsMesh>((void*)component);
+                ref IsMesh mesh = ref world.GetComponentRef<IsMesh>(entity);
                 mesh.version++;
             }
 
             public void Add(T item)
             {
                 length++;
-                array = UnsafeWorld.ResizeArray((UnsafeWorld*)world.Address, entity, arrayType, length);
+                array = world.ResizeArray(entity, arrayType, length);
                 AsSpan()[(int)length - 1] = item;
                 Modified();
             }
@@ -652,7 +649,7 @@ namespace Meshes
             public void Clear()
             {
                 length = 0;
-                array = UnsafeWorld.ResizeArray((UnsafeWorld*)world.Address, entity, arrayType, length);
+                array = world.ResizeArray(entity, arrayType, length);
                 Modified();
             }
 
