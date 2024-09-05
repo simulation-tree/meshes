@@ -96,7 +96,7 @@ namespace Meshes.Tests
             quadMesh.AddTriangle(0, 1, 2);
             quadMesh.AddTriangle(2, 3, 0);
 
-            Span<Mesh.Channel> channels = [Mesh.Channel.Position, Mesh.Channel.Normal, Mesh.Channel.UV];
+            USpan<Mesh.Channel> channels = [Mesh.Channel.Position, Mesh.Channel.Normal, Mesh.Channel.UV];
             using UnmanagedList<float> vertexData = new();
             uint vertexSize = quadMesh.Assemble(vertexData, channels);
             Assert.That(vertexSize, Is.EqualTo(3 + 3 + 2));
