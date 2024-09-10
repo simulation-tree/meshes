@@ -152,6 +152,11 @@ namespace Meshes
         readonly World IEntity.World => entity.world;
         readonly Definition IEntity.Definition => new([RuntimeType.Get<IsMesh>()], []);
 
+        public Mesh(World world, uint existingEntity)
+        {
+            entity = new(world, existingEntity);
+        }
+
         /// <summary>
         /// Creates a blank mesh with no data/channels.
         /// </summary>
