@@ -150,7 +150,7 @@ namespace Meshes
 
         readonly uint IEntity.Value => entity.value;
         readonly World IEntity.World => entity.world;
-        readonly Definition IEntity.Definition => new([RuntimeType.Get<IsMesh>()], []);
+        readonly Definition IEntity.Definition => new Definition().AddComponentType<IsMesh>().AddArrayType<uint>();
 
         public Mesh(World world, uint existingEntity)
         {
@@ -164,7 +164,7 @@ namespace Meshes
         {
             entity = new(world);
             entity.AddComponent(new IsMesh());
-            entity.CreateArray<uint>(0);
+            entity.CreateArray<uint>();
         }
 
         /// <summary>
