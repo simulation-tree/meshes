@@ -224,12 +224,26 @@ namespace Meshes
             return new(array.pointer, length);
         }
 
+        public unsafe readonly USpan<Vector3> ResizePositions(uint length)
+        {
+            ThrowIfMissingPositions();
+            IncrementVersion();
+            return new(entity.ResizeArray<MeshVertexPosition>(length).pointer, length);
+        }
+
         public unsafe readonly USpan<Vector2> CreateUVs(uint length)
         {
             ThrowIfAlreadyContainsUVs();
             IncrementVersion();
             USpan<MeshVertexUV> array = entity.CreateArray<MeshVertexUV>(length);
             return new(array.pointer, length);
+        }
+
+        public unsafe readonly USpan<Vector2> ResizeUVs(uint length)
+        {
+            ThrowIfMissingUVs();
+            IncrementVersion();
+            return new(entity.ResizeArray<MeshVertexUV>(length).pointer, length);
         }
 
         public unsafe readonly USpan<Vector3> CreateNormals(uint length)
@@ -240,12 +254,26 @@ namespace Meshes
             return new(array.pointer, length);
         }
 
+        public unsafe readonly USpan<Vector3> ResizeNormals(uint length)
+        {
+            ThrowIfMissingNormals();
+            IncrementVersion();
+            return new(entity.ResizeArray<MeshVertexNormal>(length).pointer, length);
+        }
+
         public unsafe readonly USpan<Vector3> CreateTangents(uint length)
         {
             ThrowIfAlreadyContainsTangents();
             IncrementVersion();
             USpan<MeshVertexTangent> array = entity.CreateArray<MeshVertexTangent>(length);
             return new(array.pointer, length);
+        }
+
+        public unsafe readonly USpan<Vector3> ResizeTangents(uint length)
+        {
+            ThrowIfMissingTangents();
+            IncrementVersion();
+            return new(entity.ResizeArray<MeshVertexTangent>(length).pointer, length);
         }
 
         public unsafe readonly USpan<Vector3> CreateBiTangents(uint length)
@@ -256,12 +284,26 @@ namespace Meshes
             return new(array.pointer, length);
         }
 
+        public unsafe readonly USpan<Vector3> ResizeBiTangents(uint length)
+        {
+            ThrowIfMissingBiTangents();
+            IncrementVersion();
+            return new(entity.ResizeArray<MeshVertexBiTangent>(length).pointer, length);
+        }
+
         public unsafe readonly USpan<Color> CreateColors(uint length)
         {
             ThrowIfAlreadyContainsColors();
             IncrementVersion();
             USpan<MeshVertexColor> array = entity.CreateArray<MeshVertexColor>(length);
             return new(array.pointer, length);
+        }
+
+        public unsafe readonly USpan<Color> ResizeColors(uint length)
+        {
+            ThrowIfMissingColors();
+            IncrementVersion();
+            return new(entity.ResizeArray<MeshVertexColor>(length).pointer, length);
         }
 
         public readonly void AddIndices(USpan<uint> indices)
@@ -285,6 +327,11 @@ namespace Meshes
             span[count] = a;
             span[count + 1] = b;
             span[count + 2] = c;
+        }
+
+        public readonly USpan<uint> ResizeTriangles(uint length)
+        {
+            return entity.ResizeArray<uint>(length);
         }
 
         public readonly bool ContainsChannel(ChannelMask mask)
