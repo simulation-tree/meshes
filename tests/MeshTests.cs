@@ -1,6 +1,5 @@
 ﻿using Data;
 using Simulation;
-using System;
 using System.Numerics;
 using Unmanaged;
 using Unmanaged.Collections;
@@ -20,29 +19,29 @@ namespace Meshes.Tests
         {
             using World world = new();
             Mesh mesh = new(world);
-            Mesh.Collection<Vector3> positions = mesh.CreatePositions();
-            Mesh.Collection<Color> colors = mesh.CreateColors();
-            Mesh.Collection<Vector2> uvs = mesh.CreateUVs();
-            positions.Add(new(0f, 0f, 0f));
-            positions.Add(new(1f, 0f, 0f));
-            positions.Add(new(1f, 1f, 0f));
-            positions.Add(new(0f, 1f, 0f));
-            colors.Add(new(1f, 0f, 0f, 1f));
-            colors.Add(new(0f, 1f, 0f, 1f));
-            colors.Add(new(0f, 0f, 1f, 1f));
-            colors.Add(new(1f, 1f, 1f, 1f));
-            uvs.Add(new(0f, 0f));
-            uvs.Add(new(1f, 0f));
-            uvs.Add(new(1f, 1f));
-            uvs.Add(new(0f, 1f));
+            USpan<Vector3> positions = mesh.CreatePositions(4);
+            USpan<Color> colors = mesh.CreateColors(4);
+            USpan<Vector2> uvs = mesh.CreateUVs(4);
+            positions[0] = new(0f, 0f, 0f);
+            positions[1] = new(1f, 0f, 0f);
+            positions[2] = new(1f, 1f, 0f);
+            positions[3] = new(0f, 1f, 0f);
+            colors[0] = new(1f, 0f, 0f, 1f);
+            colors[1] = new(0f, 1f, 0f, 1f);
+            colors[2] = new(0f, 0f, 1f, 1f);
+            colors[3] = new(1f, 1f, 1f, 1f);
+            uvs[0] = new(0f, 0f);
+            uvs[1] = new(1f, 0f);
+            uvs[2] = new(1f, 1f);
+            uvs[3] = new(0f, 1f);
+            Assert.That(mesh.VertexCount, Is.EqualTo(4));
             Assert.That(mesh.HasPositions, Is.True);
             Assert.That(mesh.HasNormals, Is.False);
             Assert.That(mesh.HasUVs, Is.True);
             Assert.That(mesh.HasColors, Is.True);
             Assert.That(mesh.HasTangents, Is.False);
-            Assert.That(mesh.VertexCount, Is.EqualTo(4));
 
-            (Vector3 min, Vector3 max) bounds = mesh.GetBounds();
+            (Vector3 min, Vector3 max) bounds = mesh.Bounds;
             Assert.That(bounds.min, Is.EqualTo(new Vector3(0, 0, 0)));
             Assert.That(bounds.max, Is.EqualTo(new Vector3(1, 1, 0)));
         }
@@ -52,13 +51,13 @@ namespace Meshes.Tests
         {
             using World world = new();
             Mesh mesh = new(world);
-            Mesh.Collection<Vector3> positions = mesh.CreatePositions();
-            positions.Add(new(0f, 0f, 0f));
-            positions.Add(new(1f, 0f, 0f));
-            positions.Add(new(1f, 1f, 0f));
+            USpan<Vector3> positions = mesh.CreatePositions(3);
+            positions[0] = new(0f, 0f, 0f);
+            positions[1] = new(1f, 0f, 0f);
+            positions[2] = new(1f, 1f, 0f);
 
-            Assert.That(mesh.GetVersion(), Is.EqualTo(3));
-            Assert.That(positions.Count, Is.EqualTo(3));
+            Assert.That(mesh.Version, Is.EqualTo(1));
+            Assert.That(positions.Length, Is.EqualTo(3));
             mesh.AddTriangle(0, 1, 2);
 
             Assert.That(mesh.VertexCount, Is.EqualTo(3));
@@ -69,29 +68,29 @@ namespace Meshes.Tests
         {
             using World world = new();
             Mesh quadMesh = new(world);
-            Mesh.Collection<Vector3> positions = quadMesh.CreatePositions();
-            positions.Add(new(0f, 0f, 0f));
-            positions.Add(new(1f, 0f, 0f));
-            positions.Add(new(1f, 1f, 0f));
-            positions.Add(new(0f, 1f, 0f));
+            USpan<Vector3> positions = quadMesh.CreatePositions(4);
+            positions[0] = new(0f, 0f, 0f);
+            positions[1] = new(1f, 0f, 0f);
+            positions[2] = new(1f, 1f, 0f);
+            positions[3] = new(0f, 1f, 0f);
 
-            Mesh.Collection<Color> colors = quadMesh.CreateColors();
-            colors.Add(new(1f, 0f, 0f, 1f));
-            colors.Add(new(0f, 1f, 0f, 1f));
-            colors.Add(new(0f, 0f, 1f, 1f));
-            colors.Add(new(1f, 1f, 1f, 1f));
+            USpan<Color> colors = quadMesh.CreateColors(4);
+            colors[0] = new(1f, 0f, 0f, 1f);
+            colors[1] = new(0f, 1f, 0f, 1f);
+            colors[2] = new(0f, 0f, 1f, 1f);
+            colors[3] = new(1f, 1f, 1f, 1f);
 
-            Mesh.Collection<Vector2> uvs = quadMesh.CreateUVs();
-            uvs.Add(new(0f, 0f));
-            uvs.Add(new(1f, 0f));
-            uvs.Add(new(1f, 1f));
-            uvs.Add(new(0f, 1f));
+            USpan<Vector2> uvs = quadMesh.CreateUVs(4);
+            uvs[0] = new(0f, 0f);
+            uvs[1] = new(1f, 0f);
+            uvs[2] = new(1f, 1f);
+            uvs[3] = new(0f, 1f);
 
-            Mesh.Collection<Vector3> normals = quadMesh.CreateNormals();
-            normals.Add(new(0f, 0f, 1f));
-            normals.Add(new(0f, 0f, 1f));
-            normals.Add(new(0f, 0f, 1f));
-            normals.Add(new(0f, 0f, 1f));
+            USpan<Vector3> normals = quadMesh.CreateNormals(4);
+            normals[0] = new(0f, 0f, 1f);
+            normals[1] = new(0f, 0f, 1f);
+            normals[2] = new(0f, 0f, 1f);
+            normals[3] = new(0f, 0f, 1f);
 
             quadMesh.AddTriangle(0, 1, 2);
             quadMesh.AddTriangle(2, 3, 0);

@@ -3,6 +3,7 @@ using Data.Components;
 using Meshes.Components;
 using Simulation;
 using System;
+using System.Diagnostics;
 using System.Numerics;
 using Unmanaged;
 using Unmanaged.Collections;
@@ -37,66 +38,65 @@ namespace Meshes
 
         public readonly uint IndexCount => entity.GetArrayLength<uint>();
 
-        public readonly unsafe Collection<uint> Indices
-        {
-            get
-            {
-                USpan<uint> indices = entity.GetArray<uint>();
-                return new(indices.pointer, indices.length, RuntimeType.Get<uint>(), entity);
-            }
-        }
+        public readonly USpan<uint> Indices => entity.GetArray<uint>();
 
-        public readonly unsafe Collection<Vector3> Positions
+        public readonly unsafe USpan<Vector3> Positions
         {
             get
             {
+                ThrowIfMissingPositions();
                 USpan<MeshVertexPosition> positions = entity.GetArray<MeshVertexPosition>();
-                return new(positions.pointer, positions.length, RuntimeType.Get<MeshVertexPosition>(), entity);
+                return new(positions.pointer, positions.Length);
             }
         }
 
-        public unsafe Collection<Vector2> UVs
+        public readonly unsafe USpan<Vector2> UVs
         {
             get
             {
+                ThrowIfMissingUVs();
                 USpan<MeshVertexUV> uvs = entity.GetArray<MeshVertexUV>();
-                return new(uvs.pointer, uvs.length, RuntimeType.Get<MeshVertexUV>(), entity);
+                return new(uvs.pointer, uvs.Length);
             }
         }
 
-        public unsafe Collection<Vector3> Normals
+        public readonly unsafe USpan<Vector3> Normals
         {
             get
             {
+                ThrowIfMissingNormals();
                 USpan<MeshVertexNormal> normals = entity.GetArray<MeshVertexNormal>();
-                return new(normals.pointer, normals.length, RuntimeType.Get<MeshVertexNormal>(), entity);
+                return new(normals.pointer, normals.Length);
             }
         }
 
-        public readonly unsafe Collection<Vector3> Tangents
+        public readonly unsafe USpan<Vector3> Tangents
         {
             get
             {
+                ThrowIfMissingTangents();
                 USpan<MeshVertexTangent> tangents = entity.GetArray<MeshVertexTangent>();
-                return new(tangents.pointer, tangents.length, RuntimeType.Get<MeshVertexTangent>(), entity);
+                return new(tangents.pointer, tangents.Length);
             }
         }
 
-        public readonly unsafe Collection<Vector3> BiTangents
+        public readonly unsafe USpan<Vector3> BiTangents
         {
             get
             {
+                ThrowIfMissingBiTangents();
                 USpan<MeshVertexBiTangent> biTangents = entity.GetArray<MeshVertexBiTangent>();
-                return new(biTangents.pointer, biTangents.length, RuntimeType.Get<MeshVertexBiTangent>(), entity);
+                return new(biTangents.pointer, biTangents.Length);
             }
         }
 
-        public readonly unsafe Collection<Vector4> Colors
+        public readonly unsafe USpan<Vector4> Colors
         {
             get
             {
+                ThrowIfMissingColors();
                 USpan<MeshVertexColor> colors = entity.GetArray<MeshVertexColor>();
-                return new(colors.pointer, colors.length, RuntimeType.Get<MeshVertexColor>(), entity);
+                return new(colors.pointer, colors.Length);
             }
         }
 
@@ -148,6 +148,34 @@ namespace Meshes
             }
         }
 
+        public readonly uint Version
+        {
+            get
+            {
+                IsMesh component = entity.GetComponentRef<IsMesh>();
+                return component.version;
+            }
+        }
+
+        public readonly (Vector3 min, Vector3 max) Bounds
+        {
+            get
+            {
+                ThrowIfMissingPositions();
+                USpan<MeshVertexPosition> positions = entity.GetArray<MeshVertexPosition>();
+                Vector3 min = new(float.MaxValue);
+                Vector3 max = new(float.MinValue);
+                for (uint i = 0; i < positions.Length; i++)
+                {
+                    Vector3 position = positions[i].value;
+                    min = Vector3.Min(min, position);
+                    max = Vector3.Max(max, position);
+                }
+
+                return (min, max);
+            }
+        }
+
         readonly uint IEntity.Value => entity.value;
         readonly World IEntity.World => entity.world;
         readonly Definition IEntity.Definition => new Definition().AddComponentType<IsMesh>().AddArrayType<uint>();
@@ -182,102 +210,64 @@ namespace Meshes
             return entity.ToString();
         }
 
-        public readonly uint GetVersion()
+        public readonly void IncrementVersion()
         {
-            IsMesh component = entity.GetComponentRef<IsMesh>();
-            return component.version;
+            ref IsMesh mesh = ref entity.GetComponentRef<IsMesh>();
+            mesh.version++;
         }
 
-        public readonly (Vector3 min, Vector3 max) GetBounds()
+        public unsafe readonly USpan<Vector3> CreatePositions(uint length)
         {
-            bool hasPositions = HasPositions;
-            if (hasPositions)
-            {
-                USpan<MeshVertexPosition> positions = entity.GetArray<MeshVertexPosition>();
-                Vector3 min = new(float.MaxValue);
-                Vector3 max = new(float.MinValue);
-                for (uint i = 0; i < positions.length; i++)
-                {
-                    Vector3 position = positions[i].value;
-                    min = Vector3.Min(min, position);
-                    max = Vector3.Max(max, position);
-                }
-
-                return (min, max);
-            }
-            else return default;
+            ThrowIfAlreadyContainsPositions();
+            IncrementVersion();
+            USpan<MeshVertexPosition> array = entity.CreateArray<MeshVertexPosition>(length);
+            return new(array.pointer, length);
         }
 
-        public unsafe readonly Collection<Vector3> CreatePositions()
+        public unsafe readonly USpan<Vector2> CreateUVs(uint length)
         {
-            if (HasPositions)
-            {
-                throw new InvalidOperationException("Mesh already contains positions.");
-            }
-
-            USpan<MeshVertexPosition> array = entity.CreateArray<MeshVertexPosition>(0);
-            return new(array.pointer, 0, RuntimeType.Get<MeshVertexPosition>(), entity);
+            ThrowIfAlreadyContainsUVs();
+            IncrementVersion();
+            USpan<MeshVertexUV> array = entity.CreateArray<MeshVertexUV>(length);
+            return new(array.pointer, length);
         }
 
-        public unsafe readonly Collection<Vector2> CreateUVs()
+        public unsafe readonly USpan<Vector3> CreateNormals(uint length)
         {
-            if (HasUVs)
-            {
-                throw new InvalidOperationException("Mesh already contains uvs.");
-            }
-
-            USpan<MeshVertexUV> array = entity.CreateArray<MeshVertexUV>(0);
-            return new(array.pointer, 0, RuntimeType.Get<MeshVertexUV>(), entity);
+            ThrowIfAlreadyContainsNormals();
+            IncrementVersion();
+            USpan<MeshVertexNormal> array = entity.CreateArray<MeshVertexNormal>(length);
+            return new(array.pointer, length);
         }
 
-        public unsafe readonly Collection<Vector3> CreateNormals()
+        public unsafe readonly USpan<Vector3> CreateTangents(uint length)
         {
-            if (HasNormals)
-            {
-                throw new InvalidOperationException("Mesh already contains normals.");
-            }
-
-            USpan<MeshVertexNormal> array = entity.CreateArray<MeshVertexNormal>(0);
-            return new(array.pointer, 0, RuntimeType.Get<MeshVertexNormal>(), entity);
+            ThrowIfAlreadyContainsTangents();
+            IncrementVersion();
+            USpan<MeshVertexTangent> array = entity.CreateArray<MeshVertexTangent>(length);
+            return new(array.pointer, length);
         }
 
-        public unsafe readonly Collection<Vector3> CreateTangents()
+        public unsafe readonly USpan<Vector3> CreateBiTangents(uint length)
         {
-            if (HasTangents)
-            {
-                throw new InvalidOperationException("Mesh already contains tangents.");
-            }
-
-            USpan<MeshVertexTangent> array = entity.CreateArray<MeshVertexTangent>(0);
-            return new(array.pointer, 0, RuntimeType.Get<MeshVertexTangent>(), entity);
+            ThrowIfAlreadyContainsBiTangents();
+            IncrementVersion();
+            USpan<MeshVertexBiTangent> array = entity.CreateArray<MeshVertexBiTangent>(length);
+            return new(array.pointer, length);
         }
 
-        public unsafe readonly Collection<Vector3> CreateBiTangents()
+        public unsafe readonly USpan<Color> CreateColors(uint length)
         {
-            if (HasBiTangents)
-            {
-                throw new InvalidOperationException("Mesh already contains bitangents.");
-            }
-
-            USpan<MeshVertexBiTangent> array = entity.CreateArray<MeshVertexBiTangent>(0);
-            return new(array.pointer, 0, RuntimeType.Get<MeshVertexBiTangent>(), entity);
-        }
-
-        public unsafe readonly Collection<Color> CreateColors()
-        {
-            if (HasColors)
-            {
-                throw new InvalidOperationException("Mesh already contains colors.");
-            }
-
-            USpan<MeshVertexColor> array = entity.CreateArray<MeshVertexColor>(0);
-            return new(array.pointer, 0, RuntimeType.Get<MeshVertexColor>(), entity);
+            ThrowIfAlreadyContainsColors();
+            IncrementVersion();
+            USpan<MeshVertexColor> array = entity.CreateArray<MeshVertexColor>(length);
+            return new(array.pointer, length);
         }
 
         public readonly void AddIndices(USpan<uint> indices)
         {
             uint count = entity.GetArrayLength<uint>();
-            USpan<uint> span = entity.ResizeArray<uint>(count + (uint)indices.length);
+            USpan<uint> span = entity.ResizeArray<uint>(count + indices.Length);
             indices.CopyTo(span.Slice(count));
         }
 
@@ -369,16 +359,16 @@ namespace Meshes
         /// <returns>How many <c>float</c> values compose a single vertex.</returns>
         public readonly uint Assemble(UnmanagedList<float> vertexData, USpan<Channel> channels)
         {
-            USpan<MeshVertexPosition> positions = default;
-            USpan<MeshVertexUV> uvs = default;
-            USpan<MeshVertexNormal> normals = default;
-            USpan<MeshVertexTangent> tangents = default;
-            USpan<MeshVertexBiTangent> bitangents = default;
-            USpan<MeshVertexColor> colors = default;
+            USpan<Vector3> positions = default;
+            USpan<Vector2> uvs = default;
+            USpan<Vector3> normals = default;
+            USpan<Vector3> tangents = default;
+            USpan<Vector3> bitangents = default;
+            USpan<Vector4> colors = default;
 
             static bool Contains(USpan<Channel> channels, Channel channel)
             {
-                for (uint i = 0; i < channels.length; i++)
+                for (uint i = 0; i < channels.Length; i++)
                 {
                     if (channels[i] == channel)
                     {
@@ -389,98 +379,79 @@ namespace Meshes
                 return false;
             }
 
-            //throw if any channel is missing
             if (Contains(channels, Channel.Position))
             {
-                if (HasPositions)
-                {
-                    positions = entity.GetArray<MeshVertexPosition>();
-                }
+                positions = Positions;
             }
 
             if (Contains(channels, Channel.UV))
             {
-                if (HasUVs)
-                {
-                    uvs = entity.GetArray<MeshVertexUV>();
-                }
+                uvs = UVs;
             }
 
             if (Contains(channels, Channel.Normal))
             {
-                if (HasNormals)
-                {
-                    normals = entity.GetArray<MeshVertexNormal>();
-                }
+                normals = Normals;
             }
 
             if (Contains(channels, Channel.Tangent))
             {
-                if (HasTangents)
-                {
-                    tangents = entity.GetArray<MeshVertexTangent>();
-                }
+                tangents = Tangents;
             }
 
             if (Contains(channels, Channel.BiTangent))
             {
-                if (HasBiTangents)
-                {
-                    bitangents = entity.GetArray<MeshVertexBiTangent>();
-                }
+                bitangents = BiTangents;
             }
 
             if (Contains(channels, Channel.Color))
             {
-                if (HasColors)
-                {
-                    colors = entity.GetArray<MeshVertexColor>();
-                }
+                colors = Colors;
             }
 
             uint vertexCount = VertexCount;
             for (uint i = 0; i < vertexCount; i++)
             {
-                for (uint c = 0; c < channels.length; c++)
+                for (uint c = 0; c < channels.Length; c++)
                 {
                     Channel channel = channels[c];
                     if (channel == Channel.Position)
                     {
-                        Vector3 position = positions[i].value;
+                        Vector3 position = positions[i];
                         vertexData.Add(position.X);
                         vertexData.Add(position.Y);
                         vertexData.Add(position.Z);
                     }
                     else if (channel == Channel.UV)
                     {
-                        Vector2 uv = uvs[i].value;
+                        Vector2 uv = uvs[i];
                         vertexData.Add(uv.X);
                         vertexData.Add(uv.Y);
                     }
                     else if (channel == Channel.Normal)
                     {
-                        Vector3 normal = normals[i].value;
+                        Vector3 normal = normals[i];
                         vertexData.Add(normal.X);
                         vertexData.Add(normal.Y);
                         vertexData.Add(normal.Z);
                     }
                     else if (channel == Channel.Tangent)
                     {
-                        Vector3 tangent = tangents[i].value;
+                        Vector3 tangent = tangents[i];
                         vertexData.Add(tangent.X);
                         vertexData.Add(tangent.Y);
                         vertexData.Add(tangent.Z);
                     }
                     else if (channel == Channel.BiTangent)
                     {
-                        Vector3 bitangent = bitangents[i].value;
+                        Vector3 bitangent = bitangents[i];
                         vertexData.Add(bitangent.X);
                         vertexData.Add(bitangent.Y);
                         vertexData.Add(bitangent.Z);
                     }
                     else if (channel == Channel.Color)
                     {
-                        Vector4 color = colors[i].value;
+                        Vector4 color = colors[i];
                         vertexData.Add(color.X);
                         vertexData.Add(color.Y);
                         vertexData.Add(color.Z);
@@ -490,7 +461,7 @@ namespace Meshes
             }
 
             uint vertexSize = 0;
-            for (uint c = 0; c < channels.length; c++)
+            for (uint c = 0; c < channels.Length; c++)
             {
                 Channel channel = channels[c];
                 if (channel == Channel.Position)
@@ -550,79 +521,111 @@ namespace Meshes
             };
         }
 
-        //todo: efficiency: this can be better optimized by batching modifications, then incrementing version when changes are submitted
-        //rather than on every individual operation
-        public unsafe struct Collection<T> where T : unmanaged, IEquatable<T>
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfAlreadyContainsPositions()
         {
-            private readonly uint entity;
-            private readonly World world;
-            private void* array;
-            private uint length;
-            private readonly RuntimeType arrayType;
-
-            public readonly T this[uint index]
+            if (HasPositions)
             {
-                get
-                {
-                    return new USpan<T>(array, length)[index];
-                }
-                set
-                {
-                    new USpan<T>(array, length)[index] = value;
-                    Modified();
-                }
+                throw new InvalidOperationException("Mesh already contains positions");
             }
+        }
 
-            public readonly uint Count => length;
-
-            internal unsafe Collection(void* array, uint length, RuntimeType arrayType, Entity entity)
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfAlreadyContainsUVs()
+        {
+            if (HasUVs)
             {
-                this.array = array;
-                this.length = length;
-                this.entity = entity.value;
-                this.world = entity.world;
-                this.arrayType = arrayType;
+                throw new InvalidOperationException("Mesh already contains uvs");
             }
+        }
 
-            public readonly USpan<T> AsSpan()
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfAlreadyContainsNormals()
+        {
+            if (HasNormals)
             {
-                return new USpan<T>(array, length);
+                throw new InvalidOperationException("Mesh already contains normals");
             }
+        }
 
-            private unsafe readonly void Modified()
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfAlreadyContainsTangents()
+        {
+            if (HasTangents)
             {
-                ref IsMesh mesh = ref world.GetComponentRef<IsMesh>(entity);
-                mesh.version++;
+                throw new InvalidOperationException("Mesh already contains tangents");
             }
+        }
 
-            public void Add(T item)
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfAlreadyContainsBiTangents()
+        {
+            if (HasBiTangents)
             {
-                length++;
-                array = world.ResizeArray(entity, arrayType, length);
-                AsSpan()[length - 1] = item;
-                Modified();
+                throw new InvalidOperationException("Mesh already contains bitangents");
             }
+        }
 
-            public void Clear()
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfAlreadyContainsColors()
+        {
+            if (HasColors)
             {
-                length = 0;
-                array = world.ResizeArray(entity, arrayType, length);
-                Modified();
+                throw new InvalidOperationException("Mesh already contains colors");
             }
+        }
 
-            public readonly bool Contains(T item)
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfMissingPositions()
+        {
+            if (!HasPositions)
             {
-                return AsSpan().Contains(item);
+                throw new InvalidOperationException("Mesh does not contain positions");
             }
+        }
 
-            public readonly USpan<T>.Enumerator GetEnumerator()
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfMissingUVs()
+        {
+            if (!HasUVs)
             {
-                return AsSpan().GetEnumerator();
+                throw new InvalidOperationException("Mesh does not contain uvs");
             }
+        }
 
-            public readonly uint IndexOf(T item)
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfMissingNormals()
+        {
+            if (!HasNormals)
             {
-                return AsSpan().IndexOf(item);
+                throw new InvalidOperationException("Mesh does not contain normals");
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfMissingTangents()
+        {
+            if (!HasTangents)
+            {
+                throw new InvalidOperationException("Mesh does not contain tangents");
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfMissingBiTangents()
+        {
+            if (!HasBiTangents)
+            {
+                throw new InvalidOperationException("Mesh does not contain bitangents");
+            }
+        }
+
+        [Conditional("DEBUG")]
+        private readonly void ThrowIfMissingColors()
+        {
+            if (!HasColors)
+            {
+                throw new InvalidOperationException("Mesh does not contain colors");
             }
         }
 
