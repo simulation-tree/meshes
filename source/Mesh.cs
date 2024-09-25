@@ -356,7 +356,7 @@ namespace Meshes
                 return false;
             }
 
-            if ((mask & ChannelMask.Bitangents) != 0 && !HasBiTangents)
+            if ((mask & ChannelMask.BiTangents) != 0 && !HasBiTangents)
             {
                 return false;
             }
@@ -548,7 +548,7 @@ namespace Meshes
                 Channel.UV => mask |= ChannelMask.UVs,
                 Channel.Normal => mask |= ChannelMask.Normals,
                 Channel.Tangent => mask |= ChannelMask.Tangents,
-                Channel.BiTangent => mask |= ChannelMask.Bitangents,
+                Channel.BiTangent => mask |= ChannelMask.BiTangents,
                 Channel.Color => mask |= ChannelMask.Colors,
                 _ => throw new NotSupportedException($"Unsupported channel {channel}")
             };
@@ -683,7 +683,7 @@ namespace Meshes
             UVs = 2,
             Normals = 4,
             Tangents = 8,
-            Bitangents = 16,
+            BiTangents = 16,
             Colors = 32
         }
 
