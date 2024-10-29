@@ -1,24 +1,17 @@
 ﻿using Data;
-using Simulation;
+using Simulation.Tests;
 using System.Numerics;
 using Unmanaged;
 using Unmanaged.Collections;
 
 namespace Meshes.Tests
 {
-    public class MeshTests
+    public class MeshTests : SimulationTests
     {
-        [TearDown]
-        public void ClearUp()
-        {
-            Allocations.ThrowIfAny();
-        }
-
         [Test]
         public void CreateQuadMesh()
         {
-            using World world = new();
-            Mesh mesh = new(world);
+            Mesh mesh = new(World);
             USpan<Vector3> positions = mesh.CreatePositions(4);
             USpan<Color> colors = mesh.CreateColors(4);
             USpan<Vector2> uvs = mesh.CreateUVs(4);
@@ -49,8 +42,7 @@ namespace Meshes.Tests
         [Test]
         public void CheckMeshCollection()
         {
-            using World world = new();
-            Mesh mesh = new(world);
+            Mesh mesh = new(World);
             USpan<Vector3> positions = mesh.CreatePositions(3);
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
@@ -66,8 +58,7 @@ namespace Meshes.Tests
         [Test]
         public void AssembleForRendering()
         {
-            using World world = new();
-            Mesh quadMesh = new(world);
+            Mesh quadMesh = new(World);
             USpan<Vector3> positions = quadMesh.CreatePositions(4);
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
@@ -99,7 +90,7 @@ namespace Meshes.Tests
             using UnmanagedList<float> vertexData = new();
             uint vertexSize = quadMesh.Assemble(vertexData, channels);
             Assert.That(vertexSize, Is.EqualTo(3 + 3 + 2));
-            Assert.That(vertexData.Count, Is.EqualTo(4 * vertexSize));
+            Assert.That(vertexData, Has.Count.EqualTo(4 * vertexSize));
             for (uint v = 0; v < 4; v++)
             {
                 float x = vertexData[v * vertexSize];

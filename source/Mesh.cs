@@ -205,6 +205,11 @@ namespace Meshes
             entity.AddComponent(new IsMeshRequest(modelReference, meshIndex));
         }
 
+        public readonly void Dispose()
+        {
+            entity.Dispose();
+        }
+
         public readonly override string ToString()
         {
             return entity.ToString();
