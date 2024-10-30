@@ -1,4 +1,5 @@
-﻿using Data;
+﻿using Collections;
+using Data;
 using Data.Components;
 using Meshes.Components;
 using Simulation;
@@ -6,7 +7,6 @@ using System;
 using System.Diagnostics;
 using System.Numerics;
 using Unmanaged;
-using Unmanaged.Collections;
 
 namespace Meshes
 {
@@ -415,7 +415,7 @@ namespace Meshes
         /// <para>If the mesh does not contain the data for a specific channel, it will use defaults.</para>
         /// </summary>
         /// <returns>How many <c>float</c> values compose a single vertex.</returns>
-        public readonly uint Assemble(UnmanagedList<float> vertexData, USpan<Channel> channels)
+        public readonly uint Assemble(List<float> vertexData, USpan<Channel> channels)
         {
             USpan<Vector3> positions = default;
             USpan<Vector2> uvs = default;

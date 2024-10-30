@@ -1,8 +1,8 @@
-﻿using Data;
+﻿using Collections;
+using Data;
 using Simulation.Tests;
 using System.Numerics;
 using Unmanaged;
-using Unmanaged.Collections;
 
 namespace Meshes.Tests
 {
@@ -87,7 +87,7 @@ namespace Meshes.Tests
             quadMesh.AddTriangle(2, 3, 0);
 
             USpan<Mesh.Channel> channels = [Mesh.Channel.Position, Mesh.Channel.Normal, Mesh.Channel.UV];
-            using UnmanagedList<float> vertexData = new();
+            using List<float> vertexData = new();
             uint vertexSize = quadMesh.Assemble(vertexData, channels);
             Assert.That(vertexSize, Is.EqualTo(3 + 3 + 2));
             Assert.That(vertexData, Has.Count.EqualTo(4 * vertexSize));
