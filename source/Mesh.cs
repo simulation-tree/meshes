@@ -422,7 +422,7 @@ namespace Meshes
             USpan<Vector3> normals = default;
             USpan<Vector3> tangents = default;
             USpan<Vector3> bitangents = default;
-            USpan<Color> colors = default;
+            USpan<Vector4> colors = default;
 
             static bool Contains(USpan<Channel> channels, Channel channel)
             {
@@ -464,7 +464,7 @@ namespace Meshes
 
             if (Contains(channels, Channel.Color))
             {
-                colors = Colors;
+                colors = Colors.As<Vector4>();
             }
 
             uint vertexCount = VertexCount;
@@ -509,7 +509,7 @@ namespace Meshes
                     }
                     else if (channel == Channel.Color)
                     {
-                        Vector4 color = colors[i].AsVector4();
+                        Vector4 color = colors[i];
                         vertexData.Add(color.X);
                         vertexData.Add(color.Y);
                         vertexData.Add(color.Z);
