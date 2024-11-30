@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
+using Worlds;
 
 namespace Meshes
 {
+    [Array]
     public struct MeshVertexUV
     {
         public Vector2 value;

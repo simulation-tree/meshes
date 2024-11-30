@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
+using Worlds;
 
 namespace Meshes
 {
+    [Array]
     public struct MeshVertexTangent
     {
         public Vector3 value;

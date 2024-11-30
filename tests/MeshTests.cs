@@ -1,13 +1,28 @@
 ﻿using Collections;
 using Data;
+using Meshes.Components;
 using Simulation.Tests;
 using System.Numerics;
 using Unmanaged;
+using Worlds;
 
 namespace Meshes.Tests
 {
     public class MeshTests : SimulationTests
     {
+        protected override void SetUp()
+        {
+            base.SetUp();
+            ComponentType.Register<IsMesh>();
+            ArrayType.Register<MeshVertexPosition>();
+            ArrayType.Register<MeshVertexNormal>();
+            ArrayType.Register<MeshVertexUV>();
+            ArrayType.Register<MeshVertexColor>();
+            ArrayType.Register<MeshVertexTangent>();
+            ArrayType.Register<MeshVertexBiTangent>();
+            ArrayType.Register<MeshVertexIndex>();
+        }
+
         [Test]
         public void CreateQuadMesh()
         {

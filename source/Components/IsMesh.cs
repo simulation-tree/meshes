@@ -1,5 +1,8 @@
-﻿namespace Meshes.Components
+﻿using Worlds;
+
+namespace Meshes.Components
 {
+    [Component]
     public struct IsMesh
     {
         /// <summary>

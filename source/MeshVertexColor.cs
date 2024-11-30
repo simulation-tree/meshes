@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
+using Worlds;
 
 namespace Meshes
 {
+    [Array]
     public struct MeshVertexColor
     {
         public Vector4 value;

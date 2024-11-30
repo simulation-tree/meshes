@@ -2,17 +2,17 @@
 using Data;
 using Data.Components;
 using Meshes.Components;
-using Simulation;
 using System;
 using System.Diagnostics;
 using System.Numerics;
 using Unmanaged;
+using Worlds;
 
 namespace Meshes
 {
     public readonly struct Mesh : IEntity
     {
-        public readonly Entity entity;
+        private readonly Entity entity;
 
         public readonly FixedString Name => entity.GetComponentRef<Name>().value;
         public readonly bool HasPositions => entity.ContainsArray<MeshVertexPosition>();
@@ -36,9 +36,9 @@ namespace Meshes
             }
         }
 
-        public readonly uint IndexCount => entity.GetArrayLength<uint>();
+        public readonly uint IndexCount => entity.GetArrayLength<MeshVertexIndex>();
 
-        public readonly USpan<uint> Indices => entity.GetArray<uint>();
+        public readonly USpan<uint> Indices => entity.GetArray<MeshVertexIndex>().As<uint>();
 
         public readonly unsafe USpan<Vector3> Positions
         {
@@ -178,7 +178,7 @@ namespace Meshes
 
         readonly uint IEntity.Value => entity.value;
         readonly World IEntity.World => entity.world;
-        readonly Definition IEntity.Definition => new Definition().AddComponentType<IsMesh>().AddArrayType<uint>();
+        readonly Definition IEntity.Definition => new Definition().AddComponentType<IsMesh>().AddArrayType<MeshVertexIndex>();
 
         public Mesh(World world, uint existingEntity)
         {
@@ -192,7 +192,7 @@ namespace Meshes
         {
             entity = new(world);
             entity.AddComponent(new IsMesh());
-            entity.CreateArray<uint>();
+            entity.CreateArray<MeshVertexIndex>();
         }
 
         /// <summary>
@@ -319,22 +319,22 @@ namespace Meshes
 
         public readonly void AddIndices(USpan<uint> indices)
         {
-            uint count = entity.GetArrayLength<uint>();
-            USpan<uint> span = entity.ResizeArray<uint>(count + indices.Length);
-            indices.CopyTo(span.Slice(count));
+            uint count = entity.GetArrayLength<MeshVertexIndex>();
+            USpan<MeshVertexIndex> span = entity.ResizeArray<MeshVertexIndex>(count + indices.Length);
+            indices.As<MeshVertexIndex>().CopyTo(span.Slice(count));
         }
 
         public readonly void AddIndex(uint index)
         {
-            uint count = entity.GetArrayLength<uint>();
-            USpan<uint> span = entity.ResizeArray<uint>(count + 1);
+            uint count = entity.GetArrayLength<MeshVertexIndex>();
+            USpan<MeshVertexIndex> span = entity.ResizeArray<MeshVertexIndex>(count + 1);
             span[count] = index;
         }
 
         public readonly void AddTriangle(uint a, uint b, uint c)
         {
-            uint count = entity.GetArrayLength<uint>();
-            USpan<uint> span = entity.ResizeArray<uint>(count + 3);
+            uint count = entity.GetArrayLength<MeshVertexIndex>();
+            USpan<MeshVertexIndex> span = entity.ResizeArray<MeshVertexIndex>(count + 3);
             span[count] = a;
             span[count + 1] = b;
             span[count + 2] = c;
@@ -342,7 +342,7 @@ namespace Meshes
 
         public readonly USpan<uint> ResizeTriangles(uint length)
         {
-            return entity.ResizeArray<uint>(length);
+            return entity.ResizeArray<MeshVertexIndex>(length).As<uint>();
         }
 
         public readonly bool ContainsChannel(ChannelMask mask)
@@ -561,21 +561,21 @@ namespace Meshes
                 Channel.Tangent => mask |= ChannelMask.Tangents,
                 Channel.BiTangent => mask |= ChannelMask.BiTangents,
                 Channel.Color => mask |= ChannelMask.Colors,
-                _ => throw new NotSupportedException($"Unsupported channel {channel}")
+                _ => throw new NotSupportedException($"Unsupported channel `{channel}`")
             };
         }
 
-        public static RuntimeType GetCollectionType(Channel channel)
+        public static Type GetCollectionType(Channel channel)
         {
             return channel switch
             {
-                Channel.Position => RuntimeType.Get<Vector3>(),
-                Channel.UV => RuntimeType.Get<Vector2>(),
-                Channel.Normal => RuntimeType.Get<Vector3>(),
-                Channel.Tangent => RuntimeType.Get<Vector3>(),
-                Channel.BiTangent => RuntimeType.Get<Vector3>(),
-                Channel.Color => RuntimeType.Get<Vector4>(),
-                _ => throw new NotSupportedException($"Unsupported channel {channel}")
+                Channel.Position => typeof(Vector3),
+                Channel.UV => typeof(Vector2),
+                Channel.Normal => typeof(Vector3),
+                Channel.Tangent => typeof(Vector3),
+                Channel.BiTangent => typeof(Vector3),
+                Channel.Color => typeof(Vector4),
+                _ => throw new NotSupportedException($"Unsupported channel `{channel}`")
             };
         }
 
@@ -685,6 +685,11 @@ namespace Meshes
             {
                 throw new InvalidOperationException("Mesh does not contain colors");
             }
+        }
+
+        public static implicit operator Entity(Mesh mesh)
+        {
+            return mesh.entity;
         }
 
         [Flags]
