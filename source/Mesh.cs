@@ -14,7 +14,7 @@ namespace Meshes
     {
         private readonly Entity entity;
 
-        public readonly FixedString Name => entity.GetComponentRef<Name>().value;
+        public readonly FixedString Name => entity.GetComponent<Name>().value;
         public readonly bool HasPositions => entity.ContainsArray<MeshVertexPosition>();
         public readonly bool HasUVs => entity.ContainsArray<MeshVertexUV>();
         public readonly bool HasNormals => entity.ContainsArray<MeshVertexNormal>();
@@ -152,7 +152,7 @@ namespace Meshes
         {
             get
             {
-                IsMesh component = entity.GetComponentRef<IsMesh>();
+                IsMesh component = entity.GetComponent<IsMesh>();
                 return component.version;
             }
         }
@@ -217,7 +217,7 @@ namespace Meshes
 
         public readonly void IncrementVersion()
         {
-            ref IsMesh mesh = ref entity.GetComponentRef<IsMesh>();
+            ref IsMesh mesh = ref entity.GetComponent<IsMesh>();
             mesh.version++;
         }
 
