@@ -340,7 +340,7 @@ namespace Meshes
             span[count + 2] = c;
         }
 
-        public readonly USpan<uint> ResizeTriangles(uint length)
+        public readonly USpan<uint> ResizeIndices(uint length)
         {
             return entity.ResizeArray<MeshVertexIndex>(length).As<uint>();
         }
