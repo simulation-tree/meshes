@@ -24,8 +24,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\simulation\source\Simulation.csproj" />
-		<ProjectReference Include="..\..\simulation\tests\Simulation.Tests.csproj" />
+		<ProjectReference Include="..\..\worlds\source\Worlds.csproj" />
+		<ProjectReference Include="..\..\worlds\tests\Worlds.Tests.csproj" />
 		<ProjectReference Include="..\..\unmanaged\source\Unmanaged.csproj" />
 		<ProjectReference Include="..\..\unmanaged\tests\Unmanaged.Tests.csproj" />
 		<ProjectReference Include="..\source\Meshes.csproj" />

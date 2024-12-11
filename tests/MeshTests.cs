@@ -1,14 +1,14 @@
 ﻿using Collections;
 using Data;
 using Meshes.Components;
-using Simulation.Tests;
 using System.Numerics;
 using Unmanaged;
+using Unmanaged.Tests;
 using Worlds;
 
 namespace Meshes.Tests
 {
-    public class MeshTests : SimulationTests
+    public class MeshTests : UnmanagedTests
     {
         protected override void SetUp()
         {
@@ -26,7 +26,8 @@ namespace Meshes.Tests
         [Test]
         public void CreateQuadMesh()
         {
-            Mesh mesh = new(World);
+            using World world = new();
+            Mesh mesh = new(world);
             USpan<Vector3> positions = mesh.CreatePositions(4);
             USpan<Color> colors = mesh.CreateColors(4);
             USpan<Vector2> uvs = mesh.CreateUVs(4);
@@ -57,7 +58,8 @@ namespace Meshes.Tests
         [Test]
         public void CheckMeshCollection()
         {
-            Mesh mesh = new(World);
+            using World world = new();
+            Mesh mesh = new(world);
             USpan<Vector3> positions = mesh.CreatePositions(3);
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
@@ -73,7 +75,8 @@ namespace Meshes.Tests
         [Test]
         public void AssembleForRendering()
         {
-            Mesh quadMesh = new(World);
+            using World world = new();
+            Mesh quadMesh = new(world);
             USpan<Vector3> positions = quadMesh.CreatePositions(4);
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
