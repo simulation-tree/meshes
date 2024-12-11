@@ -1,5 +1,4 @@
 ﻿using Collections;
-using Data;
 using Meshes.Components;
 using System.Numerics;
 using Unmanaged;
@@ -29,7 +28,7 @@ namespace Meshes.Tests
             using World world = new();
             Mesh mesh = new(world);
             USpan<Vector3> positions = mesh.CreatePositions(4);
-            USpan<Color> colors = mesh.CreateColors(4);
+            USpan<Vector4> colors = mesh.CreateColors(4);
             USpan<Vector2> uvs = mesh.CreateUVs(4);
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
@@ -43,14 +42,14 @@ namespace Meshes.Tests
             uvs[1] = new(1f, 0f);
             uvs[2] = new(1f, 1f);
             uvs[3] = new(0f, 1f);
-            Assert.That(mesh.VertexCount, Is.EqualTo(4));
-            Assert.That(mesh.HasPositions, Is.True);
-            Assert.That(mesh.HasNormals, Is.False);
-            Assert.That(mesh.HasUVs, Is.True);
-            Assert.That(mesh.HasColors, Is.True);
-            Assert.That(mesh.HasTangents, Is.False);
+            Assert.That(mesh.GetVertexCount(), Is.EqualTo(4));
+            Assert.That(mesh.HasPositions(), Is.True);
+            Assert.That(mesh.HasNormals(), Is.False);
+            Assert.That(mesh.HasUVs(), Is.True);
+            Assert.That(mesh.HasColors(), Is.True);
+            Assert.That(mesh.HasTangents(), Is.False);
 
-            (Vector3 min, Vector3 max) bounds = mesh.Bounds;
+            (Vector3 min, Vector3 max) bounds = mesh.GetBounds();
             Assert.That(bounds.min, Is.EqualTo(new Vector3(0, 0, 0)));
             Assert.That(bounds.max, Is.EqualTo(new Vector3(1, 1, 0)));
         }
@@ -65,11 +64,11 @@ namespace Meshes.Tests
             positions[1] = new(1f, 0f, 0f);
             positions[2] = new(1f, 1f, 0f);
 
-            Assert.That(mesh.Version, Is.EqualTo(1));
+            Assert.That(mesh.GetVersion(), Is.EqualTo(1));
             Assert.That(positions.Length, Is.EqualTo(3));
             mesh.AddTriangle(0, 1, 2);
 
-            Assert.That(mesh.VertexCount, Is.EqualTo(3));
+            Assert.That(mesh.GetVertexCount(), Is.EqualTo(3));
         }
 
         [Test]
@@ -83,7 +82,7 @@ namespace Meshes.Tests
             positions[2] = new(1f, 1f, 0f);
             positions[3] = new(0f, 1f, 0f);
 
-            USpan<Color> colors = quadMesh.CreateColors(4);
+            USpan<Vector4> colors = quadMesh.CreateColors(4);
             colors[0] = new(1f, 0f, 0f, 1f);
             colors[1] = new(0f, 1f, 0f, 1f);
             colors[2] = new(0f, 0f, 1f, 1f);
