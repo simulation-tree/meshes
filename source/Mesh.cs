@@ -55,6 +55,7 @@ namespace Meshes
         [Flags]
         public enum ChannelMask : byte
         {
+            None = 0,
             Positions = 1,
             UVs = 2,
             Normals = 4,

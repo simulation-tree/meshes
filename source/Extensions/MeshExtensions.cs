@@ -1,5 +1,4 @@
-﻿using Collections;
-using Meshes.Components;
+﻿using Meshes.Components;
 using System;
 using System.Diagnostics;
 using System.Numerics;
@@ -97,64 +96,56 @@ namespace Meshes
             return mesh.AsEntity().GetArray<MeshVertexBiTangent>().As<Vector3>();
         }
 
+        public static uint GetVertexSize<T>(this T mesh) where T : unmanaged, IMesh
+        {
+            return mesh.GetChannels().GetVertexSize();
+        }
+
         /// <summary>
-        /// Appends vertex data into the given list, in the order of the channels given.
-        /// <para>If the mesh does not contain the data for a specific channel, it will use defaults.</para>
+        /// Appends vertex data into the given span, in the order of the channels given.
+        /// <para>Missing channels on the mesh are skipped.</para>
         /// </summary>
-        /// <returns>How many <c>float</c> values compose a single vertex.</returns>
-        public static uint Assemble<T>(this T mesh, List<float> vertexData, USpan<Mesh.Channel> channels) where T : unmanaged, IMesh
+        /// <returns>How many <c>float</c> were added to <paramref name="vertexData"/>.</returns>
+        public static uint Assemble<T>(this T mesh, USpan<float> vertexData, USpan<Mesh.Channel> channels) where T : unmanaged, IMesh
         {
             USpan<Vector3> positions = default;
             USpan<Vector2> uvs = default;
             USpan<Vector3> normals = default;
             USpan<Vector3> tangents = default;
-            USpan<Vector3> bitangents = default;
+            USpan<Vector3> biTangents = default;
             USpan<Vector4> colors = default;
 
-            static bool Contains(USpan<Mesh.Channel> channels, Mesh.Channel channel)
+            for (uint i = 0; i < channels.Length; i++)
             {
-                for (uint i = 0; i < channels.Length; i++)
+                Mesh.Channel channel = channels[i];
+                if (channel == Mesh.Channel.Position)
                 {
-                    if (channels[i] == channel)
-                    {
-                        return true;
-                    }
+                    positions = GetVertexPositions(mesh);
                 }
-
-                return false;
-            }
-
-            if (Contains(channels, Mesh.Channel.Position))
-            {
-                positions = GetVertexPositions(mesh);
-            }
-
-            if (Contains(channels, Mesh.Channel.UV))
-            {
-                uvs = GetVertexUVs(mesh);
-            }
-
-            if (Contains(channels, Mesh.Channel.Normal))
-            {
-                normals = GetVertexNormals(mesh);
-            }
-
-            if (Contains(channels, Mesh.Channel.Tangent))
-            {
-                tangents = GetVertexTangents(mesh);
-            }
-
-            if (Contains(channels, Mesh.Channel.BiTangent))
-            {
-                bitangents = GetVertexBiTangents(mesh);
-            }
-
-            if (Contains(channels, Mesh.Channel.Color))
-            {
-                colors = GetVertexColors(mesh);
+                else if (channel == Mesh.Channel.UV)
+                {
+                    uvs = GetVertexUVs(mesh);
+                }
+                else if (channel == Mesh.Channel.Normal)
+                {
+                    normals = GetVertexNormals(mesh);
+                }
+                else if (channel == Mesh.Channel.Tangent)
+                {
+                    tangents = GetVertexTangents(mesh);
+                }
+                else if (channel == Mesh.Channel.BiTangent)
+                {
+                    biTangents = GetVertexBiTangents(mesh);
+                }
+                else if (channel == Mesh.Channel.Color)
+                {
+                    colors = GetVertexColors(mesh);
+                }
             }
 
             uint vertexCount = GetVertexCount(mesh);
+            uint index = 0;
             for (uint i = 0; i < vertexCount; i++)
             {
                 for (uint c = 0; c < channels.Length; c++)
@@ -163,79 +154,49 @@ namespace Meshes
                     if (channel == Mesh.Channel.Position)
                     {
                         Vector3 position = positions[i];
-                        vertexData.Add(position.X);
-                        vertexData.Add(position.Y);
-                        vertexData.Add(position.Z);
+                        vertexData[index++] = position.X;
+                        vertexData[index++] = position.Y;
+                        vertexData[index++] = position.Z;
                     }
                     else if (channel == Mesh.Channel.UV)
                     {
                         Vector2 uv = uvs[i];
-                        vertexData.Add(uv.X);
-                        vertexData.Add(uv.Y);
+                        vertexData[index++] = uv.X;
+                        vertexData[index++] = uv.Y;
                     }
                     else if (channel == Mesh.Channel.Normal)
                     {
                         Vector3 normal = normals[i];
-                        vertexData.Add(normal.X);
-                        vertexData.Add(normal.Y);
-                        vertexData.Add(normal.Z);
+                        vertexData[index++] = normal.X;
+                        vertexData[index++] = normal.Y;
+                        vertexData[index++] = normal.Z;
                     }
                     else if (channel == Mesh.Channel.Tangent)
                     {
                         Vector3 tangent = tangents[i];
-                        vertexData.Add(tangent.X);
-                        vertexData.Add(tangent.Y);
-                        vertexData.Add(tangent.Z);
+                        vertexData[index++] = tangent.X;
+                        vertexData[index++] = tangent.Y;
+                        vertexData[index++] = tangent.Z;
                     }
                     else if (channel == Mesh.Channel.BiTangent)
                     {
-                        Vector3 bitangent = bitangents[i];
-                        vertexData.Add(bitangent.X);
-                        vertexData.Add(bitangent.Y);
-                        vertexData.Add(bitangent.Z);
+                        Vector3 bitangent = biTangents[i];
+                        vertexData[index++] = bitangent.X;
+                        vertexData[index++] = bitangent.Y;
+                        vertexData[index++] = bitangent.Z;
                     }
                     else if (channel == Mesh.Channel.Color)
                     {
                         Vector4 color = colors[i];
-                        vertexData.Add(color.X);
-                        vertexData.Add(color.Y);
-                        vertexData.Add(color.Z);
-                        vertexData.Add(color.W);
+                        vertexData[index++] = color.X;
+                        vertexData[index++] = color.Y;
+                        vertexData[index++] = color.Z;
+                        vertexData[index++] = color.W;
                     }
                 }
             }
 
-            uint vertexSize = 0;
-            for (uint c = 0; c < channels.Length; c++)
-            {
-                Mesh.Channel channel = channels[c];
-                if (channel == Mesh.Channel.Position)
-                {
-                    vertexSize += 3;
-                }
-                else if (channel == Mesh.Channel.UV)
-                {
-                    vertexSize += 2;
-                }
-                else if (channel == Mesh.Channel.Normal)
-                {
-                    vertexSize += 3;
-                }
-                else if (channel == Mesh.Channel.Tangent)
-                {
-                    vertexSize += 3;
-                }
-                else if (channel == Mesh.Channel.BiTangent)
-                {
-                    vertexSize += 3;
-                }
-                else if (channel == Mesh.Channel.Color)
-                {
-                    vertexSize += 4;
-                }
-            }
-
-            return vertexSize;
+            return index;
         }
 
         public static bool ContainsChannel<T>(this T mesh, Mesh.Channel channel) where T : unmanaged, IMesh
