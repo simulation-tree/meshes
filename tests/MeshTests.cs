@@ -9,23 +9,43 @@ namespace Meshes.Tests
 {
     public class MeshTests : UnmanagedTests
     {
+        protected World world;
+
+        static MeshTests()
+        {
+            TypeLayout.Register<IsMesh>("IsMesh");
+            TypeLayout.Register<MeshVertexPosition>("MeshVertexPosition");
+            TypeLayout.Register<MeshVertexNormal>("MeshVertexNormal");
+            TypeLayout.Register<MeshVertexUV>("MeshVertexUV");
+            TypeLayout.Register<MeshVertexColor>("MeshVertexColor");
+            TypeLayout.Register<MeshVertexTangent>("MeshVertexTangent");
+            TypeLayout.Register<MeshVertexBiTangent>("MeshVertexBiTangent");
+            TypeLayout.Register<MeshVertexIndex>("MeshVertexIndex");
+        }
+
         protected override void SetUp()
         {
             base.SetUp();
-            ComponentType.Register<IsMesh>();
-            ArrayType.Register<MeshVertexPosition>();
-            ArrayType.Register<MeshVertexNormal>();
-            ArrayType.Register<MeshVertexUV>();
-            ArrayType.Register<MeshVertexColor>();
-            ArrayType.Register<MeshVertexTangent>();
-            ArrayType.Register<MeshVertexBiTangent>();
-            ArrayType.Register<MeshVertexIndex>();
+            world = new();
+            world.Schema.RegisterComponent<IsMesh>();
+            world.Schema.RegisterArrayElement<MeshVertexPosition>();
+            world.Schema.RegisterArrayElement<MeshVertexNormal>();
+            world.Schema.RegisterArrayElement<MeshVertexUV>();
+            world.Schema.RegisterArrayElement<MeshVertexColor>();
+            world.Schema.RegisterArrayElement<MeshVertexTangent>();
+            world.Schema.RegisterArrayElement<MeshVertexBiTangent>();
+            world.Schema.RegisterArrayElement<MeshVertexIndex>();
+        }
+
+        protected override void TearDown()
+        {
+            world.Dispose();
+            base.TearDown();
         }
 
         [Test]
         public void CreateQuadMesh()
         {
-            using World world = new();
             Mesh mesh = new(world);
             USpan<Vector3> positions = mesh.CreatePositions(4);
             USpan<Vector4> colors = mesh.CreateColors(4);
@@ -57,7 +77,6 @@ namespace Meshes.Tests
         [Test]
         public void CheckMeshCollection()
         {
-            using World world = new();
             Mesh mesh = new(world);
             USpan<Vector3> positions = mesh.CreatePositions(3);
             positions[0] = new(0f, 0f, 0f);
@@ -74,7 +93,6 @@ namespace Meshes.Tests
         [Test]
         public void AssembleForRendering()
         {
-            using World world = new();
             Mesh quadMesh = new(world);
             USpan<Vector3> positions = quadMesh.CreatePositions(4);
             positions[0] = new(0f, 0f, 0f);

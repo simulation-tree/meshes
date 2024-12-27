@@ -10,7 +10,11 @@ namespace Meshes
 
         readonly uint IEntity.Value => entity.value;
         readonly World IEntity.World => entity.world;
-        readonly Definition IEntity.Definition => new Definition().AddComponentType<IsMesh>().AddArrayType<MeshVertexIndex>();
+
+        readonly Definition IEntity.GetDefinition(Schema schema)
+        {
+            return new Definition().AddComponentType<IsMesh>(schema).AddArrayType<MeshVertexIndex>(schema);
+        }
 
         public Mesh(World world, uint existingEntity)
         {
