@@ -3,7 +3,7 @@ using Worlds;
 
 namespace Meshes
 {
-    [Array]
+    [ArrayElement]
     public struct MeshVertexBiTangent
     {
         public Vector3 value;

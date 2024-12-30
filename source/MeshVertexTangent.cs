@@ -3,7 +3,7 @@ using Worlds;
 
 namespace Meshes
 {
-    [Array]
+    [ArrayElement]
     public struct MeshVertexTangent
     {
         public Vector3 value;

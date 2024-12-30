@@ -13,7 +13,7 @@ namespace Meshes
 
         readonly Definition IEntity.GetDefinition(Schema schema)
         {
-            return new Definition().AddComponentType<IsMesh>(schema).AddArrayType<MeshVertexIndex>(schema);
+            return new Definition().AddComponentType<IsMesh>(schema).AddArrayElementType<MeshVertexIndex>(schema);
         }
 
         public Mesh(World world, uint existingEntity)

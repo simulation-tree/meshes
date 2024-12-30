@@ -2,7 +2,7 @@
 
 namespace Meshes
 {
-    [Array]
+    [ArrayElement]
     public struct MeshVertexIndex
     {
         public uint value;

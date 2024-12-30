@@ -3,7 +3,7 @@ using Worlds;
 
 namespace Meshes
 {
-    [Array]
+    [ArrayElement]
     public struct MeshVertexUV
     {
         public Vector2 value;
