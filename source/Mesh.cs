@@ -36,9 +36,8 @@ namespace Meshes
         /// </summary>
         public Mesh(World world, Entity modelEntity, uint meshIndex = 0)
         {
-            entity = new(world);
-            rint modelReference = entity.AddReference(modelEntity);
-            entity.AddComponent(new IsMeshRequest(modelReference, meshIndex));
+            entity = new Entity<IsMeshRequest>(world, new IsMeshRequest((rint)1, meshIndex));
+            entity.AddReference(modelEntity);
         }
 
         public readonly void Dispose()
