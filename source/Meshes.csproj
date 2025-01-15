@@ -8,8 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\data\source\Data.csproj" />
 		<ProjectReference Include="..\..\unmanaged\source\Unmanaged.csproj" />
+		<ProjectReference Include="..\..\worlds\source\Worlds.csproj" />
 	</ItemGroup>
 
 </Project>
