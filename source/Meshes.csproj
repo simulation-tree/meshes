@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\..\unmanaged\source\Unmanaged.csproj" />
-		<ProjectReference Include="..\..\worlds\source\Worlds.csproj" />
+		<ProjectReference Include="..\..\worlds\core\Worlds.Core.csproj" />
 	</ItemGroup>
 
 </Project>

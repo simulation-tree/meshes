@@ -24,8 +24,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\types\source\Types.csproj" />
-		<ProjectReference Include="..\..\worlds\source\Worlds.csproj" />
+		<ProjectReference Include="..\..\types\core\Types.Core.csproj" />
+		<ProjectReference Include="..\..\worlds\core\Worlds.Core.csproj" />
 		<ProjectReference Include="..\..\worlds\tests\Worlds.Tests.csproj" />
 		<ProjectReference Include="..\..\unmanaged\source\Unmanaged.csproj" />
 		<ProjectReference Include="..\..\unmanaged\tests\Unmanaged.Tests.csproj" />
