@@ -4,6 +4,9 @@ using Worlds;
 
 namespace Meshes
 {
+    /// <summary>
+    /// An entity that stores mesh data.
+    /// </summary>
     public readonly struct Mesh : IMesh
     {
         private readonly Entity entity;
