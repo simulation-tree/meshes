@@ -1,6 +1,7 @@
 ﻿using Collections;
 using System.Numerics;
 using Unmanaged;
+using Worlds;
 
 namespace Meshes.Tests
 {
@@ -9,6 +10,7 @@ namespace Meshes.Tests
         [Test]
         public void CreateQuadMesh()
         {
+            using World world = CreateWorld();
             Mesh mesh = new(world);
             USpan<Vector3> positions = mesh.CreatePositions(4);
             USpan<Vector4> colors = mesh.CreateColors(4);
@@ -40,6 +42,7 @@ namespace Meshes.Tests
         [Test]
         public void CheckMeshCollection()
         {
+            using World world = CreateWorld();
             Mesh mesh = new(world);
             USpan<Vector3> positions = mesh.CreatePositions(3);
             positions[0] = new(0f, 0f, 0f);
@@ -56,6 +59,7 @@ namespace Meshes.Tests
         [Test]
         public void AssembleForRendering()
         {
+            using World world = CreateWorld();
             Mesh quadMesh = new(world);
             USpan<Vector3> positions = quadMesh.CreatePositions(4);
             positions[0] = new(0f, 0f, 0f);

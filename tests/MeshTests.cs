@@ -1,33 +1,19 @@
 ﻿using Types;
-using Unmanaged.Tests;
 using Worlds;
+using Worlds.Tests;
 
 namespace Meshes.Tests
 {
-    public class MeshTests : UnmanagedTests
+    public class MeshTests : WorldTests
     {
-        protected World world;
-
         static MeshTests()
         {
             TypeRegistry.Load<Meshes.TypeBank>();
         }
 
-        protected override void SetUp()
+        protected override Schema CreateSchema()
         {
-            base.SetUp();
-            world = new(CreateSchema());
-        }
-
-        protected override void TearDown()
-        {
-            world.Dispose();
-            base.TearDown();
-        }
-
-        protected virtual Schema CreateSchema()
-        {
-            Schema schema = new();
+            Schema schema = base.CreateSchema();
             schema.Load<Meshes.SchemaBank>();
             return schema;
         }
