@@ -8,13 +8,13 @@ namespace Meshes.Tests
     {
         static MeshTests()
         {
-            TypeRegistry.Load<Meshes.TypeBank>();
+            TypeRegistry.Load<MeshesTypeBank>();
         }
 
         protected override Schema CreateSchema()
         {
             Schema schema = base.CreateSchema();
-            schema.Load<Meshes.SchemaBank>();
+            schema.Load<MeshesSchemaBank>();
             return schema;
         }
     }
