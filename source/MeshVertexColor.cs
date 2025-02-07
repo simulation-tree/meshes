@@ -12,5 +12,10 @@ namespace Meshes
         {
             this.value = value;
         }
+
+        public MeshVertexColor(float r, float g, float b, float a)
+        {
+            value = new Vector4(r, g, b, a);
+        }
     }
 }
