@@ -37,7 +37,7 @@ namespace Meshes
         public static MeshChannelMask GetChannelMask(this USpan<MeshChannel> channels)
         {
             MeshChannelMask mask = 0;
-            for (byte i = 0; i < channels.Length; i++)
+            for (uint i = 0; i < channels.Length; i++)
             {
                 MeshChannel channel = channels[i];
                 mask = channel switch
@@ -94,7 +94,7 @@ namespace Meshes
         public static uint GetVertexSize(this USpan<MeshChannel> channels)
         {
             uint size = 0;
-            for (byte i = 0; i < channels.Length; i++)
+            for (uint i = 0; i < channels.Length; i++)
             {
                 MeshChannel channel = channels[i];
                 size += channel switch
