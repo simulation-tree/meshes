@@ -2,7 +2,6 @@
 
 namespace Meshes.Components
 {
-    [Component]
     public struct IsMeshRequest
     {
         public rint modelReference;

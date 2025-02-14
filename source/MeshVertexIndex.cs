@@ -1,8 +1,5 @@
-﻿using Worlds;
-
-namespace Meshes
+﻿namespace Meshes
 {
-    [ArrayElement]
     public struct MeshVertexIndex
     {
         public uint value;

@@ -1,8 +1,5 @@
-﻿using Worlds;
-
-namespace Meshes.Components
+﻿namespace Meshes.Components
 {
-    [Component]
     public readonly struct IsMesh
     {
         /// <summary>
