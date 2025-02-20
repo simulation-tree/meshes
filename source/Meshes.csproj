@@ -12,7 +12,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\unmanaged\source\Unmanaged.csproj" />
+		<ProjectReference Include="..\..\unmanaged\core\Unmanaged.Core.csproj" />
 		<ProjectReference Include="..\..\worlds\core\Worlds.Core.csproj" />
 		<ProjectReference Include="..\..\types\generator\Types.Generator.csproj">
 			<OutputItemType>Analyzer</OutputItemType>
