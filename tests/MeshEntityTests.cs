@@ -44,12 +44,14 @@ namespace Meshes.Tests
         {
             using World world = CreateWorld();
             Mesh mesh = new(world);
+            Assert.That(mesh.Version, Is.EqualTo(1));
+
             USpan<Vector3> positions = mesh.CreatePositions(3);
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
             positions[2] = new(1f, 1f, 0f);
 
-            Assert.That(mesh.Version, Is.EqualTo(1));
+            Assert.That(mesh.Version, Is.EqualTo(2));
             Assert.That(positions.Length, Is.EqualTo(3));
             Assert.That(mesh.IndexCount, Is.EqualTo(0));
             mesh.AddTriangle(0, 1, 2);

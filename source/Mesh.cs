@@ -185,7 +185,7 @@ namespace Meshes
         public Mesh(World world)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh());
+            value = world.CreateEntity(new IsMesh(1));
             CreateArray<MeshVertexIndex>();
         }
 
@@ -202,7 +202,7 @@ namespace Meshes
         public Mesh(World world, USpan<Vector3> positions, USpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh());
+            value = world.CreateEntity(new IsMesh(1));
             CreateArray(positions.As<MeshVertexPosition>());
             CreateArray(indices.As<MeshVertexIndex>());
         }
@@ -210,7 +210,7 @@ namespace Meshes
         public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh());
+            value = world.CreateEntity(new IsMesh(1));
             CreateArray(positions.As<MeshVertexPosition>());
             CreateArray(uvs.As<MeshVertexUV>());
             CreateArray(indices.As<MeshVertexIndex>());
@@ -219,7 +219,7 @@ namespace Meshes
         public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<Vector3> normals, USpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh());
+            value = world.CreateEntity(new IsMesh(1));
             CreateArray(positions.As<MeshVertexPosition>());
             CreateArray(uvs.As<MeshVertexUV>());
             CreateArray(normals.As<MeshVertexNormal>());
@@ -229,7 +229,7 @@ namespace Meshes
         public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<Vector4> colors, USpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh());
+            value = world.CreateEntity(new IsMesh(1));
             CreateArray(positions.As<MeshVertexPosition>());
             CreateArray(uvs.As<MeshVertexUV>());
             CreateArray(colors.As<MeshVertexColor>());
@@ -239,7 +239,7 @@ namespace Meshes
         public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<Vector3> normals, USpan<Vector4> colors, USpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh());
+            value = world.CreateEntity(new IsMesh(1));
             CreateArray(positions.As<MeshVertexPosition>());
             CreateArray(uvs.As<MeshVertexUV>());
             CreateArray(normals.As<MeshVertexNormal>());
