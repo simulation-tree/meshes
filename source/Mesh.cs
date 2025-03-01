@@ -1,5 +1,4 @@
-﻿using Collections.Generic;
-using Meshes.Components;
+﻿using Meshes.Components;
 using System;
 using System.Diagnostics;
 using System.Numerics;
@@ -432,7 +431,7 @@ namespace Meshes
             ThrowIfPositionsMissing();
 
             IncrementVersion();
-            Array<MeshVertexPosition> array = GetArray<MeshVertexPosition>();
+            Values<MeshVertexPosition> array = GetArray<MeshVertexPosition>();
             array.Length = newLength;
             return array.AsSpan<Vector3>();
         }
@@ -442,7 +441,7 @@ namespace Meshes
             ThrowIfUVsMissing();
 
             IncrementVersion();
-            Array<MeshVertexUV> array = GetArray<MeshVertexUV>();
+            Values<MeshVertexUV> array = GetArray<MeshVertexUV>();
             array.Length = newLength;
             return array.AsSpan<Vector2>();
         }
@@ -452,7 +451,7 @@ namespace Meshes
             ThrowIfNormalsMissing();
 
             IncrementVersion();
-            Array<MeshVertexNormal> array = GetArray<MeshVertexNormal>();
+            Values<MeshVertexNormal> array = GetArray<MeshVertexNormal>();
             array.Length = newLength;
             return array.AsSpan<Vector3>();
         }
@@ -462,7 +461,7 @@ namespace Meshes
             ThrowIfTangentsMissing();
 
             IncrementVersion();
-            Array<MeshVertexTangent> array = GetArray<MeshVertexTangent>();
+            Values<MeshVertexTangent> array = GetArray<MeshVertexTangent>();
             array.Length = newLength;
             return array.AsSpan<Vector3>();
         }
@@ -472,7 +471,7 @@ namespace Meshes
             ThrowIfBiTangentsMissing();
 
             IncrementVersion();
-            Array<MeshVertexBiTangent> array = GetArray<MeshVertexBiTangent>();
+            Values<MeshVertexBiTangent> array = GetArray<MeshVertexBiTangent>();
             array.Length = newLength;
             return array.AsSpan<Vector3>();
         }
@@ -482,7 +481,7 @@ namespace Meshes
             ThrowIfColorsMissing();
 
             IncrementVersion();
-            Array<MeshVertexColor> array = GetArray<MeshVertexColor>();
+            Values<MeshVertexColor> array = GetArray<MeshVertexColor>();
             array.Length = newLength;
             return array.AsSpan<Vector4>();
         }
@@ -491,7 +490,7 @@ namespace Meshes
         {
             IncrementVersion();
 
-            Array<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
+            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
             array.Length = newLength;
             return array.AsSpan<uint>();
         }
@@ -500,7 +499,7 @@ namespace Meshes
         {
             IncrementVersion();
 
-            Array<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
+            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
             uint length = array.Length;
             array.Length += indices.Length;
             indices.CopyTo(array.AsSpan<uint>(length));
@@ -510,7 +509,7 @@ namespace Meshes
         {
             IncrementVersion();
 
-            Array<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
+            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
             array.Length++;
             array[array.Length - 1] = index;
         }
@@ -519,7 +518,7 @@ namespace Meshes
         {
             IncrementVersion();
 
-            Array<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
+            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
             uint length = array.Length;
             array.Length += 3;
             array[length] = a;
