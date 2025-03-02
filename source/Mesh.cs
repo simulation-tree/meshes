@@ -53,79 +53,79 @@ namespace Meshes
             }
         }
 
-        public readonly USpan<Vector3> Positions
+        public readonly Collection<Vector3> Positions
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfPositionsMissing();
 
-                return GetArray<MeshVertexPosition>().AsSpan<Vector3>();
+                return new(this, GetArray<MeshVertexPosition>().As<Vector3>());
             }
         }
 
-        public readonly USpan<Vector2> UVs
+        public readonly Collection<Vector2> UVs
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfUVsMissing();
 
-                return GetArray<MeshVertexUV>().AsSpan<Vector2>();
+                return new(this, GetArray<MeshVertexUV>().As<Vector2>());
             }
         }
 
-        public readonly USpan<Vector3> Normals
+        public readonly Collection<Vector3> Normals
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfNormalsMissing();
 
-                return GetArray<MeshVertexNormal>().AsSpan<Vector3>();
+                return new(this, GetArray<MeshVertexNormal>().As<Vector3>());
             }
         }
 
-        public readonly USpan<Vector3> Tangents
+        public readonly Collection<Vector3> Tangents
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfTangentsMissing();
 
-                return GetArray<MeshVertexTangent>().AsSpan<Vector3>();
+                return new(this, GetArray<MeshVertexTangent>().As<Vector3>());
             }
         }
 
-        public readonly USpan<Vector3> BiTangents
+        public readonly Collection<Vector3> BiTangents
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfBiTangentsMissing();
 
-                return GetArray<MeshVertexBiTangent>().AsSpan<Vector3>();
+                return new(this, GetArray<MeshVertexBiTangent>().As<Vector3>());
             }
         }
 
-        public readonly USpan<Vector4> Colors
+        public readonly Collection<Vector4> Colors
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfColorsMissing();
 
-                return GetArray<MeshVertexColor>().AsSpan<Vector4>();
+                return new(this, GetArray<MeshVertexColor>().As<Vector4>());
             }
         }
 
-        public readonly USpan<uint> Indices
+        public readonly Collection<uint> Indices
         {
             get
             {
                 ThrowIfNotLoaded();
 
-                return GetArray<MeshVertexIndex>().AsSpan<uint>();
+                return new(this, GetArray<MeshVertexIndex>().As<uint>());
             }
         }
 
@@ -163,7 +163,7 @@ namespace Meshes
                 ThrowIfNotLoaded();
                 ThrowIfPositionsMissing();
 
-                USpan<Vector3> positions = Positions;
+                USpan<Vector3> positions = GetArray<MeshVertexPosition>().AsSpan<Vector3>();
                 Vector3 min = new(float.MaxValue);
                 Vector3 max = new(float.MinValue);
                 for (uint i = 0; i < positions.Length; i++)
@@ -291,31 +291,31 @@ namespace Meshes
                 MeshChannel channel = channels[i];
                 if (channel == MeshChannel.Position)
                 {
-                    positions = Positions;
+                    positions = GetArray<MeshVertexPosition>().AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.UV)
                 {
-                    uvs = UVs;
+                    uvs = GetArray<MeshVertexUV>().AsSpan<Vector2>();
                 }
                 else if (channel == MeshChannel.Normal)
                 {
-                    normals = Normals;
+                    normals = GetArray<MeshVertexNormal>().AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.Tangent)
                 {
-                    tangents = Tangents;
+                    tangents = GetArray<MeshVertexTangent>().AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.BiTangent)
                 {
-                    biTangents = BiTangents;
+                    biTangents = GetArray<MeshVertexBiTangent>().AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.Color)
                 {
-                    colors = Colors;
+                    colors = GetArray<MeshVertexColor>().AsSpan<Vector4>();
                 }
             }
 
-            uint vertexCount = Positions.Length;
+            uint vertexCount = positions.Length;
             uint index = 0;
             for (uint i = 0; i < vertexCount; i++)
             {
@@ -378,121 +378,52 @@ namespace Meshes
             mesh = mesh.IncrementVersion();
         }
 
-        public readonly USpan<Vector3> CreatePositions(uint length)
+        public readonly Collection<Vector3> CreatePositions(uint length)
         {
             ThrowIfPositionsPresent();
 
             IncrementVersion();
-            return CreateArray<MeshVertexPosition>(length).AsSpan<Vector3>();
+            return new(this, CreateArray<MeshVertexPosition>(length).As<Vector3>());
         }
 
-        public readonly USpan<Vector2> CreateUVs(uint length)
+        public readonly Collection<Vector2> CreateUVs(uint length)
         {
             ThrowIfUVsPresent();
 
             IncrementVersion();
-            return CreateArray<MeshVertexUV>(length).AsSpan<Vector2>();
+            return new(this, CreateArray<MeshVertexUV>(length).As<Vector2>());
         }
 
-        public readonly USpan<Vector3> CreateNormals(uint length)
+        public readonly Collection<Vector3> CreateNormals(uint length)
         {
             ThrowIfNormalsPresent();
 
             IncrementVersion();
-            return CreateArray<MeshVertexNormal>(length).AsSpan<Vector3>();
+            return new(this, CreateArray<MeshVertexNormal>(length).As<Vector3>());
         }
 
-        public readonly USpan<Vector3> CreateTangents(uint length)
+        public readonly Collection<Vector3> CreateTangents(uint length)
         {
             ThrowIfTangentsPresent();
 
             IncrementVersion();
-            return CreateArray<MeshVertexTangent>(length).AsSpan<Vector3>();
+            return new(this, CreateArray<MeshVertexTangent>(length).As<Vector3>());
         }
 
-        public readonly USpan<Vector3> CreateBiTangents(uint length)
+        public readonly Collection<Vector3> CreateBiTangents(uint length)
         {
             ThrowIfBiTangentsPresent();
 
             IncrementVersion();
-            return CreateArray<MeshVertexBiTangent>(length).AsSpan<Vector3>();
+            return new(this, CreateArray<MeshVertexBiTangent>(length).As<Vector3>());
         }
 
-        public readonly USpan<Vector4> CreateColors(uint length)
+        public readonly Collection<Vector4> CreateColors(uint length)
         {
             ThrowIfColorsPresent();
 
             IncrementVersion();
-            return CreateArray<MeshVertexColor>(length).AsSpan<Vector4>();
-        }
-
-        public readonly USpan<Vector3> ResizePositions(uint newLength)
-        {
-            ThrowIfPositionsMissing();
-
-            IncrementVersion();
-            Values<MeshVertexPosition> array = GetArray<MeshVertexPosition>();
-            array.Length = newLength;
-            return array.AsSpan<Vector3>();
-        }
-
-        public readonly USpan<Vector2> ResizeUVs(uint newLength)
-        {
-            ThrowIfUVsMissing();
-
-            IncrementVersion();
-            Values<MeshVertexUV> array = GetArray<MeshVertexUV>();
-            array.Length = newLength;
-            return array.AsSpan<Vector2>();
-        }
-
-        public readonly USpan<Vector3> ResizeNormals(uint newLength)
-        {
-            ThrowIfNormalsMissing();
-
-            IncrementVersion();
-            Values<MeshVertexNormal> array = GetArray<MeshVertexNormal>();
-            array.Length = newLength;
-            return array.AsSpan<Vector3>();
-        }
-
-        public readonly USpan<Vector3> ResizeTangents(uint newLength)
-        {
-            ThrowIfTangentsMissing();
-
-            IncrementVersion();
-            Values<MeshVertexTangent> array = GetArray<MeshVertexTangent>();
-            array.Length = newLength;
-            return array.AsSpan<Vector3>();
-        }
-
-        public readonly USpan<Vector3> ResizeBiTangents(uint newLength)
-        {
-            ThrowIfBiTangentsMissing();
-
-            IncrementVersion();
-            Values<MeshVertexBiTangent> array = GetArray<MeshVertexBiTangent>();
-            array.Length = newLength;
-            return array.AsSpan<Vector3>();
-        }
-
-        public readonly USpan<Vector4> ResizeColors(uint newLength)
-        {
-            ThrowIfColorsMissing();
-
-            IncrementVersion();
-            Values<MeshVertexColor> array = GetArray<MeshVertexColor>();
-            array.Length = newLength;
-            return array.AsSpan<Vector4>();
-        }
-
-        public readonly USpan<uint> ResizeIndices(uint newLength)
-        {
-            IncrementVersion();
-
-            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            array.Length = newLength;
-            return array.AsSpan<uint>();
+            return new(this, CreateArray<MeshVertexColor>(length).As<Vector4>());
         }
 
         public readonly void AddIndices(USpan<uint> indices)
@@ -640,6 +571,64 @@ namespace Meshes
             if (ContainsColors)
             {
                 throw new InvalidOperationException($"Mesh `{value}` already contains colors");
+            }
+        }
+
+        public ref struct Collection<T> where T : unmanaged
+        {
+            private readonly Mesh mesh;
+            private readonly Values<T> array;
+            private bool changed;
+
+            public T this[uint index]
+            {
+                readonly get => array[index];
+                set
+                {
+                    array[index] = value;
+                    TryIncrementVersion();
+                }
+            }
+
+            public uint Length
+            {
+                readonly get => array.Length;
+                set
+                {
+                    array.Length = value;
+                    TryIncrementVersion();
+                }
+            }
+
+            internal Collection(Mesh mesh, Values<T> array)
+            {
+                this.mesh = mesh;
+                this.array = array;
+                changed = false;
+            }
+
+            private void TryIncrementVersion()
+            {
+                if (!changed)
+                {
+                    mesh.IncrementVersion();
+                    changed = true;
+                }
+            }
+
+            /// <summary>
+            /// Resizes the array to fit <paramref name="span"/> and copies from it.
+            /// </summary>
+            public void CopyFrom(USpan<T> span)
+            {
+                array.Length = span.Length;
+                array.CopyFrom(span);
+                TryIncrementVersion();
+            }
+
+            public readonly USpan<T> AsSpan()
+            {
+                return array.AsSpan();
             }
         }
     }
