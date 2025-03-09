@@ -5,11 +5,11 @@ namespace Meshes.Components
     public struct IsMeshRequest
     {
         public rint modelReference;
-        public uint meshIndex;
+        public int meshIndex;
         public uint version;
         public bool loaded;
 
-        public IsMeshRequest(rint modelReference, uint meshIndex)
+        public IsMeshRequest(rint modelReference, int meshIndex)
         {
             version = 0;
             loaded = false;
@@ -17,7 +17,7 @@ namespace Meshes.Components
             this.meshIndex = meshIndex;
         }
 
-        public IsMeshRequest(uint version, rint modelReference, uint meshIndex, bool loaded)
+        public IsMeshRequest(uint version, rint modelReference, int meshIndex, bool loaded)
         {
             this.version = version;
             this.modelReference = modelReference;

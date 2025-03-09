@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Unmanaged;
 
 namespace Meshes
 {
@@ -34,10 +33,10 @@ namespace Meshes
             };
         }
 
-        public static MeshChannelMask GetChannelMask(this USpan<MeshChannel> channels)
+        public static MeshChannelMask GetChannelMask(this ReadOnlySpan<MeshChannel> channels)
         {
             MeshChannelMask mask = 0;
-            for (uint i = 0; i < channels.Length; i++)
+            for (int i = 0; i < channels.Length; i++)
             {
                 MeshChannel channel = channels[i];
                 mask = channel switch
@@ -91,10 +90,31 @@ namespace Meshes
             return size;
         }
 
-        public static uint GetVertexSize(this USpan<MeshChannel> channels)
+        public static int GetVertexSize(this ReadOnlySpan<MeshChannel> channels)
         {
-            uint size = 0;
-            for (uint i = 0; i < channels.Length; i++)
+            int size = 0;
+            for (int i = 0; i < channels.Length; i++)
+            {
+                MeshChannel channel = channels[i];
+                size += channel switch
+                {
+                    MeshChannel.Position => 3,
+                    MeshChannel.UV => 2,
+                    MeshChannel.Normal => 3,
+                    MeshChannel.Tangent => 3,
+                    MeshChannel.BiTangent => 3,
+                    MeshChannel.Color => 4,
+                    _ => throw new NotSupportedException($"Unsupported channel `{channel}`")
+                };
+            }
+
+            return size;
+        }
+
+        public static int GetVertexSize(this Span<MeshChannel> channels)
+        {
+            int size = 0;
+            for (int i = 0; i < channels.Length; i++)
             {
                 MeshChannel channel = channels[i];
                 size += channel switch

@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.Numerics;
-using Unmanaged;
 using Worlds;
 
 namespace Meshes
@@ -32,7 +31,7 @@ namespace Meshes
         public readonly bool ContainsBiTangents => ContainsArray<MeshVertexBiTangent>();
         public readonly bool ContainsColors => ContainsArray<MeshVertexColor>();
 
-        public readonly uint VertexCount
+        public readonly int VertexCount
         {
             get
             {
@@ -43,7 +42,7 @@ namespace Meshes
             }
         }
 
-        public readonly uint IndexCount
+        public readonly int IndexCount
         {
             get
             {
@@ -163,10 +162,10 @@ namespace Meshes
                 ThrowIfNotLoaded();
                 ThrowIfPositionsMissing();
 
-                USpan<Vector3> positions = GetArray<MeshVertexPosition>().AsSpan<Vector3>();
+                Span<Vector3> positions = GetArray<MeshVertexPosition>().AsSpan<Vector3>();
                 Vector3 min = new(float.MaxValue);
                 Vector3 max = new(float.MinValue);
-                for (uint i = 0; i < positions.Length; i++)
+                for (int i = 0; i < positions.Length; i++)
                 {
                     Vector3 position = positions[i];
                     min = Vector3.Min(min, position);
@@ -192,59 +191,59 @@ namespace Meshes
         /// <summary>
         /// Creates a mesh+request from an existing model and a sub mesh index.
         /// </summary>
-        public Mesh(World world, Entity modelEntity, uint meshIndex = 0)
+        public Mesh(World world, Entity modelEntity, int meshIndex = 0)
         {
             this.world = world;
             value = world.CreateEntity(new IsMeshRequest((rint)1, meshIndex));
             AddReference(modelEntity);
         }
 
-        public Mesh(World world, USpan<Vector3> positions, USpan<uint> indices)
+        public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<uint> indices)
         {
             this.world = world;
             value = world.CreateEntity(new IsMesh(1));
-            CreateArray(positions.As<MeshVertexPosition>());
-            CreateArray(indices.As<MeshVertexIndex>());
+            CreateArray(positions.As<Vector3, MeshVertexPosition>());
+            CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
-        public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<uint> indices)
+        public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<uint> indices)
         {
             this.world = world;
             value = world.CreateEntity(new IsMesh(1));
-            CreateArray(positions.As<MeshVertexPosition>());
-            CreateArray(uvs.As<MeshVertexUV>());
-            CreateArray(indices.As<MeshVertexIndex>());
+            CreateArray(positions.As<Vector3, MeshVertexPosition>());
+            CreateArray(uvs.As<Vector2, MeshVertexUV>());
+            CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
-        public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<Vector3> normals, USpan<uint> indices)
+        public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<Vector3> normals, ReadOnlySpan<uint> indices)
         {
             this.world = world;
             value = world.CreateEntity(new IsMesh(1));
-            CreateArray(positions.As<MeshVertexPosition>());
-            CreateArray(uvs.As<MeshVertexUV>());
-            CreateArray(normals.As<MeshVertexNormal>());
-            CreateArray(indices.As<MeshVertexIndex>());
+            CreateArray(positions.As<Vector3, MeshVertexPosition>());
+            CreateArray(uvs.As<Vector2, MeshVertexUV>());
+            CreateArray(normals.As<Vector3, MeshVertexNormal>());
+            CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
-        public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<Vector4> colors, USpan<uint> indices)
+        public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<Vector4> colors, ReadOnlySpan<uint> indices)
         {
             this.world = world;
             value = world.CreateEntity(new IsMesh(1));
-            CreateArray(positions.As<MeshVertexPosition>());
-            CreateArray(uvs.As<MeshVertexUV>());
-            CreateArray(colors.As<MeshVertexColor>());
-            CreateArray(indices.As<MeshVertexIndex>());
+            CreateArray(positions.As<Vector3, MeshVertexPosition>());
+            CreateArray(uvs.As<Vector2, MeshVertexUV>());
+            CreateArray(colors.As<Vector4, MeshVertexColor>());
+            CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
-        public Mesh(World world, USpan<Vector3> positions, USpan<Vector2> uvs, USpan<Vector3> normals, USpan<Vector4> colors, USpan<uint> indices)
+        public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<Vector3> normals, ReadOnlySpan<Vector4> colors, ReadOnlySpan<uint> indices)
         {
             this.world = world;
             value = world.CreateEntity(new IsMesh(1));
-            CreateArray(positions.As<MeshVertexPosition>());
-            CreateArray(uvs.As<MeshVertexUV>());
-            CreateArray(normals.As<MeshVertexNormal>());
-            CreateArray(colors.As<MeshVertexColor>());
-            CreateArray(indices.As<MeshVertexIndex>());
+            CreateArray(positions.As<Vector3, MeshVertexPosition>());
+            CreateArray(uvs.As<Vector2, MeshVertexUV>());
+            CreateArray(normals.As<Vector3, MeshVertexNormal>());
+            CreateArray(colors.As<Vector4, MeshVertexColor>());
+            CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
         readonly void IEntity.Describe(ref Archetype archetype)
@@ -277,16 +276,16 @@ namespace Meshes
         /// <para>Missing channels on the mesh are skipped.</para>
         /// </summary>
         /// <returns>How many <see cref="float"/>s were added to <paramref name="vertexData"/>.</returns>
-        public readonly uint Assemble(USpan<float> vertexData, USpan<MeshChannel> channels)
+        public readonly int Assemble(Span<float> vertexData, ReadOnlySpan<MeshChannel> channels)
         {
-            USpan<Vector3> positions = default;
-            USpan<Vector2> uvs = default;
-            USpan<Vector3> normals = default;
-            USpan<Vector3> tangents = default;
-            USpan<Vector3> biTangents = default;
-            USpan<Vector4> colors = default;
+            Span<Vector3> positions = default;
+            Span<Vector2> uvs = default;
+            Span<Vector3> normals = default;
+            Span<Vector3> tangents = default;
+            Span<Vector3> biTangents = default;
+            Span<Vector4> colors = default;
 
-            for (uint i = 0; i < channels.Length; i++)
+            for (int i = 0; i < channels.Length; i++)
             {
                 MeshChannel channel = channels[i];
                 if (channel == MeshChannel.Position)
@@ -315,11 +314,11 @@ namespace Meshes
                 }
             }
 
-            uint vertexCount = positions.Length;
-            uint index = 0;
-            for (uint i = 0; i < vertexCount; i++)
+            int vertexCount = positions.Length;
+            int index = 0;
+            for (int i = 0; i < vertexCount; i++)
             {
-                for (uint c = 0; c < channels.Length; c++)
+                for (int c = 0; c < channels.Length; c++)
                 {
                     MeshChannel channel = channels[c];
                     if (channel == MeshChannel.Position)
@@ -378,7 +377,7 @@ namespace Meshes
             mesh = mesh.IncrementVersion();
         }
 
-        public readonly Collection<Vector3> CreatePositions(uint length)
+        public readonly Collection<Vector3> CreatePositions(int length)
         {
             ThrowIfPositionsPresent();
 
@@ -386,7 +385,7 @@ namespace Meshes
             return new(this, CreateArray<MeshVertexPosition>(length).As<Vector3>());
         }
 
-        public readonly Collection<Vector2> CreateUVs(uint length)
+        public readonly Collection<Vector2> CreateUVs(int length)
         {
             ThrowIfUVsPresent();
 
@@ -394,7 +393,7 @@ namespace Meshes
             return new(this, CreateArray<MeshVertexUV>(length).As<Vector2>());
         }
 
-        public readonly Collection<Vector3> CreateNormals(uint length)
+        public readonly Collection<Vector3> CreateNormals(int length)
         {
             ThrowIfNormalsPresent();
 
@@ -402,7 +401,7 @@ namespace Meshes
             return new(this, CreateArray<MeshVertexNormal>(length).As<Vector3>());
         }
 
-        public readonly Collection<Vector3> CreateTangents(uint length)
+        public readonly Collection<Vector3> CreateTangents(int length)
         {
             ThrowIfTangentsPresent();
 
@@ -410,7 +409,7 @@ namespace Meshes
             return new(this, CreateArray<MeshVertexTangent>(length).As<Vector3>());
         }
 
-        public readonly Collection<Vector3> CreateBiTangents(uint length)
+        public readonly Collection<Vector3> CreateBiTangents(int length)
         {
             ThrowIfBiTangentsPresent();
 
@@ -418,7 +417,7 @@ namespace Meshes
             return new(this, CreateArray<MeshVertexBiTangent>(length).As<Vector3>());
         }
 
-        public readonly Collection<Vector4> CreateColors(uint length)
+        public readonly Collection<Vector4> CreateColors(int length)
         {
             ThrowIfColorsPresent();
 
@@ -426,12 +425,12 @@ namespace Meshes
             return new(this, CreateArray<MeshVertexColor>(length).As<Vector4>());
         }
 
-        public readonly void AddIndices(USpan<uint> indices)
+        public readonly void AddIndices(ReadOnlySpan<uint> indices)
         {
             IncrementVersion();
 
             Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            uint length = array.Length;
+            int length = array.Length;
             array.Length += indices.Length;
             indices.CopyTo(array.AsSpan<uint>(length));
         }
@@ -450,7 +449,7 @@ namespace Meshes
             IncrementVersion();
 
             Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            uint length = array.Length;
+            int length = array.Length;
             array.Length += 3;
             array[length] = a;
             array[length + 1] = b;
@@ -580,7 +579,7 @@ namespace Meshes
             private readonly Values<T> array;
             private bool changed;
 
-            public T this[uint index]
+            public T this[int index]
             {
                 readonly get => array[index];
                 set
@@ -590,7 +589,7 @@ namespace Meshes
                 }
             }
 
-            public uint Length
+            public int Length
             {
                 readonly get => array.Length;
                 set
@@ -619,14 +618,14 @@ namespace Meshes
             /// <summary>
             /// Resizes the array to fit <paramref name="span"/> and copies from it.
             /// </summary>
-            public void CopyFrom(USpan<T> span)
+            public void CopyFrom(System.Span<T> span)
             {
                 array.Length = span.Length;
                 array.CopyFrom(span);
                 TryIncrementVersion();
             }
 
-            public readonly USpan<T> AsSpan()
+            public readonly System.Span<T> AsSpan()
             {
                 return array.AsSpan();
             }

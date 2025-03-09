@@ -1,6 +1,6 @@
 ﻿using Collections.Generic;
+using System;
 using System.Numerics;
-using Unmanaged;
 using Worlds;
 
 namespace Meshes.Tests
@@ -92,17 +92,17 @@ namespace Meshes.Tests
             quadMesh.AddTriangle(0, 1, 2);
             quadMesh.AddTriangle(2, 3, 0);
 
-            USpan<MeshChannel> channels = [MeshChannel.Position, MeshChannel.Normal, MeshChannel.UV];
-            uint vertexSize = channels.GetVertexSize();
-            uint vertexCount = quadMesh.VertexCount;
+            Span<MeshChannel> channels = [MeshChannel.Position, MeshChannel.Normal, MeshChannel.UV];
+            int vertexSize = channels.GetVertexSize();
+            int vertexCount = quadMesh.VertexCount;
             Assert.That(vertexSize, Is.EqualTo(3 + 3 + 2));
             Assert.That(quadMesh.VertexSize, Is.EqualTo(3 + 4 + 2 + 3));
             Assert.That(vertexCount, Is.EqualTo(4));
 
             using Array<float> vertexData = new(vertexSize * vertexCount);
-            uint added = quadMesh.Assemble(vertexData.AsSpan(), channels);
+            int added = quadMesh.Assemble(vertexData.AsSpan(), channels);
             Assert.That(added, Is.EqualTo(4 * vertexSize));
-            for (uint v = 0; v < 4; v++)
+            for (int v = 0; v < 4; v++)
             {
                 float x = vertexData[v * vertexSize];
                 float y = vertexData[v * vertexSize + 1];
