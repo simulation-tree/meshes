@@ -616,16 +616,16 @@ namespace Meshes
             }
 
             /// <summary>
-            /// Resizes the array to fit <paramref name="span"/> and copies from it.
+            /// Resizes the array to fit <paramref name="source"/> and copies from it.
             /// </summary>
-            public void CopyFrom(System.Span<T> span)
+            public void CopyFrom(ReadOnlySpan<T> source)
             {
-                array.Length = span.Length;
-                array.CopyFrom(span);
+                array.Length = source.Length;
+                array.CopyFrom(source);
                 TryIncrementVersion();
             }
 
-            public readonly System.Span<T> AsSpan()
+            public readonly Span<T> AsSpan()
             {
                 return array.AsSpan();
             }
