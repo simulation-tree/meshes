@@ -430,9 +430,7 @@ namespace Meshes
             IncrementVersion();
 
             Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            int length = array.Length;
-            array.Length += indices.Length;
-            indices.CopyTo(array.AsSpan<uint>(length));
+            array.AddRange(indices.As<uint, MeshVertexIndex>());
         }
 
         public readonly void AddIndex(uint index)
@@ -440,8 +438,7 @@ namespace Meshes
             IncrementVersion();
 
             Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            array.Length++;
-            array[array.Length - 1] = index;
+            array.Add(index);
         }
 
         public readonly void AddTriangle(uint a, uint b, uint c)
@@ -449,11 +446,11 @@ namespace Meshes
             IncrementVersion();
 
             Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            int length = array.Length;
-            array.Length += 3;
-            array[length] = a;
-            array[length + 1] = b;
-            array[length + 2] = c;
+            Span<MeshVertexIndex> span = stackalloc MeshVertexIndex[3];
+            span[0] = new(a);
+            span[1] = new(b);
+            span[2] = new(c);
+            array.AddRange(span);
         }
 
         [Conditional("DEBUG")]
