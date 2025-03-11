@@ -617,7 +617,6 @@ namespace Meshes
             /// </summary>
             public void CopyFrom(ReadOnlySpan<T> source)
             {
-                array.Length = source.Length;
                 array.CopyFrom(source);
                 TryIncrementVersion();
             }
