@@ -623,7 +623,17 @@ namespace Meshes
 
             public readonly Span<T> AsSpan()
             {
-                return array.AsSpan();
+                return array;
+            }
+
+            public static implicit operator Span<T>(Collection<T> collection)
+            {
+                return collection.array;
+            }
+            
+            public static implicit operator ReadOnlySpan<T>(Collection<T> collection)
+            {
+                return collection.array;
             }
         }
     }
