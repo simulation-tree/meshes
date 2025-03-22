@@ -8,7 +8,7 @@ namespace Meshes.Tests
     {
         static MeshTests()
         {
-            TypeRegistry.Load<MeshesTypeBank>();
+            MetadataRegistry.Load<MeshesTypeBank>();
         }
 
         protected override Schema CreateSchema()
