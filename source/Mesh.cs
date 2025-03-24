@@ -591,7 +591,7 @@ namespace Meshes
                 readonly get => array.Length;
                 set
                 {
-                    array.Length = value;
+                    array.Resize(value, default);
                     TryIncrementVersion();
                 }
             }
