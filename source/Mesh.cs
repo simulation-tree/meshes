@@ -453,6 +453,21 @@ namespace Meshes
             array.AddRange(span);
         }
 
+        public static Mesh CreateCube(World world)
+        {
+            return new(world, BuiltInMeshes.Cube.positions, BuiltInMeshes.Cube.uvs, BuiltInMeshes.Cube.colors, BuiltInMeshes.Cube.indices);
+        }
+
+        public static Mesh CreateCenteredQuad(World world)
+        {
+            return new(world, BuiltInMeshes.Quad.centeredPositions, BuiltInMeshes.Quad.uvs, BuiltInMeshes.Quad.normals, BuiltInMeshes.Quad.colors, BuiltInMeshes.Quad.indices);
+        }
+
+        public static Mesh CreateBottomLeftQuad(World world)
+        {
+            return new(world, BuiltInMeshes.Quad.bottomLeftPositions, BuiltInMeshes.Quad.uvs, BuiltInMeshes.Quad.normals, BuiltInMeshes.Quad.colors, BuiltInMeshes.Quad.indices);
+        }
+
         [Conditional("DEBUG")]
         private readonly void ThrowIfNotLoaded()
         {
@@ -630,7 +645,7 @@ namespace Meshes
             {
                 return collection.array;
             }
-            
+
             public static implicit operator ReadOnlySpan<T>(Collection<T> collection)
             {
                 return collection.array;
