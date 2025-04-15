@@ -176,7 +176,7 @@ namespace Meshes
             }
         }
 
-        public readonly uint Version => GetComponent<IsMesh>().version;
+        public readonly ushort Version => GetComponent<IsMesh>().version;
 
         /// <summary>
         /// Creates a blank mesh with no data/channels.
@@ -374,7 +374,7 @@ namespace Meshes
             ThrowIfNotLoaded();
 
             ref IsMesh mesh = ref GetComponent<IsMesh>();
-            mesh = mesh.IncrementVersion();
+            mesh.version++;
         }
 
         public readonly Collection<Vector3> CreatePositions(int length)

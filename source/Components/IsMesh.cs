@@ -2,12 +2,12 @@
 
 namespace Meshes.Components
 {
-    public readonly struct IsMesh : IEquatable<IsMesh>
+    public struct IsMesh : IEquatable<IsMesh>
     {
         /// <summary>
         /// Incremented when the entity has it's data updated (collections).
         /// </summary>
-        public readonly uint version;
+        public ushort version;
 
 #if NET
         [Obsolete("Default constructor not supported", true)]
@@ -17,7 +17,7 @@ namespace Meshes.Components
         }
 #endif
 
-        public IsMesh(uint version)
+        public IsMesh(ushort version)
         {
             this.version = version;
         }
@@ -35,11 +35,6 @@ namespace Meshes.Components
         public readonly override int GetHashCode()
         {
             return HashCode.Combine(version);
-        }
-
-        public readonly IsMesh IncrementVersion()
-        {
-            return new IsMesh(version + 1);
         }
 
         public static bool operator ==(IsMesh left, IsMesh right)
