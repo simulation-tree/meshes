@@ -11,6 +11,9 @@ namespace Meshes
     /// </summary>
     public readonly partial struct Mesh : IEntity
     {
+        /// <summary>
+        /// Checks if the mesh is loaded.
+        /// </summary>
         public readonly bool IsLoaded
         {
             get
@@ -24,137 +27,188 @@ namespace Meshes
             }
         }
 
-        public readonly bool ContainsPositions => ContainsArray<MeshVertexPosition>();
-        public readonly bool ContainsUVs => ContainsArray<MeshVertexUV>();
-        public readonly bool ContainsNormals => ContainsArray<MeshVertexNormal>();
-        public readonly bool ContainsTangents => ContainsArray<MeshVertexTangent>();
-        public readonly bool ContainsBiTangents => ContainsArray<MeshVertexBiTangent>();
-        public readonly bool ContainsColors => ContainsArray<MeshVertexColor>();
+        /// <summary>
+        /// Checks if the mesh contains vertex positions.
+        /// </summary>
+        public readonly bool ContainsPositions => (GetComponent<IsMesh>().channels & MeshChannelMask.Positions) != 0;
 
+        /// <summary>
+        /// Checks if the mesh contains vertex UVs.
+        /// </summary>
+        public readonly bool ContainsUVs => (GetComponent<IsMesh>().channels & MeshChannelMask.UVs) != 0;
+
+        /// <summary>
+        /// Checks if the mesh contains vertex normals.
+        /// </summary>
+        public readonly bool ContainsNormals => (GetComponent<IsMesh>().channels & MeshChannelMask.Normals) != 0;
+
+        /// <summary>
+        /// Checks if the mesh contains vertex tangents.
+        /// </summary>
+        public readonly bool ContainsTangents => (GetComponent<IsMesh>().channels & MeshChannelMask.Tangents) != 0;
+
+        /// <summary>
+        /// Checks if the mesh contains vertex bi-tangents.
+        /// </summary>
+        public readonly bool ContainsBiTangents => (GetComponent<IsMesh>().channels & MeshChannelMask.BiTangents) != 0;
+
+        /// <summary>
+        /// Checks if the mesh contains vertex colors.
+        /// </summary>
+        public readonly bool ContainsColors => (GetComponent<IsMesh>().channels & MeshChannelMask.Colors) != 0;
+
+        /// <summary>
+        /// Amount of vertices.
+        /// </summary>
         public readonly int VertexCount
         {
             get
             {
                 ThrowIfNotLoaded();
-                ThrowIfPositionsMissing();
 
-                return GetArrayLength<MeshVertexPosition>();
+                return GetComponent<IsMesh>().vertexCount;
             }
         }
 
+        /// <summary>
+        /// Amount of indices.
+        /// </summary>
         public readonly int IndexCount
         {
             get
             {
                 ThrowIfNotLoaded();
 
-                return GetArrayLength<MeshVertexIndex>();
+                return GetComponent<IsMesh>().indexCount;
             }
         }
 
-        public readonly Collection<Vector3> Positions
+        /// <summary>
+        /// Vertex position channel data.
+        /// </summary>
+        public readonly Span<Vector3> Positions
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfPositionsMissing();
 
-                return new(this, GetArray<MeshVertexPosition>().As<Vector3>());
+                return GetArray<MeshVertexPosition>().As<Vector3>();
             }
         }
 
-        public readonly Collection<Vector2> UVs
+        /// <summary>
+        /// UVs channel data.
+        /// </summary>
+        public readonly Span<Vector2> UVs
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfUVsMissing();
 
-                return new(this, GetArray<MeshVertexUV>().As<Vector2>());
+                return GetArray<MeshVertexUV>().As<Vector2>();
             }
         }
 
-        public readonly Collection<Vector3> Normals
+        /// <summary>
+        /// Normals channel data.
+        /// </summary>
+        public readonly Span<Vector3> Normals
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfNormalsMissing();
 
-                return new(this, GetArray<MeshVertexNormal>().As<Vector3>());
+                return GetArray<MeshVertexNormal>().As<Vector3>();
             }
         }
 
-        public readonly Collection<Vector3> Tangents
+        /// <summary>
+        /// Tangents channel data.
+        /// </summary>
+        public readonly Span<Vector3> Tangents
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfTangentsMissing();
 
-                return new(this, GetArray<MeshVertexTangent>().As<Vector3>());
+                return GetArray<MeshVertexTangent>().As<Vector3>();
             }
         }
 
-        public readonly Collection<Vector3> BiTangents
+        /// <summary>
+        /// Bi-tangents channel data.
+        /// </summary>
+        public readonly Span<Vector3> BiTangents
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfBiTangentsMissing();
 
-                return new(this, GetArray<MeshVertexBiTangent>().As<Vector3>());
+                return GetArray<MeshVertexBiTangent>().As<Vector3>();
             }
         }
 
-        public readonly Collection<Vector4> Colors
+        /// <summary>
+        /// Vertex color channel data.
+        /// </summary>
+        public readonly Span<Vector4> Colors
         {
             get
             {
                 ThrowIfNotLoaded();
                 ThrowIfColorsMissing();
 
-                return new(this, GetArray<MeshVertexColor>().As<Vector4>());
+                return GetArray<MeshVertexColor>().As<Vector4>();
             }
         }
 
-        public readonly Collection<uint> Indices
+        /// <summary>
+        /// Indices data.
+        /// </summary>
+        public readonly Span<uint> Indices
         {
             get
             {
                 ThrowIfNotLoaded();
 
-                return new(this, GetArray<MeshVertexIndex>().As<uint>());
+                return GetArray<MeshVertexIndex>().As<uint>();
             }
         }
 
+        /// <summary>
+        /// Mask of channels contained in the mesh.
+        /// </summary>
         public readonly MeshChannelMask Channels
         {
             get
             {
                 ThrowIfNotLoaded();
 
-                MeshChannelMask mask = 0;
-                if (ContainsPositions) mask |= MeshChannelMask.Positions;
-                if (ContainsUVs) mask |= MeshChannelMask.UVs;
-                if (ContainsNormals) mask |= MeshChannelMask.Normals;
-                if (ContainsTangents) mask |= MeshChannelMask.Tangents;
-                if (ContainsBiTangents) mask |= MeshChannelMask.BiTangents;
-                if (ContainsColors) mask |= MeshChannelMask.Colors;
-                return mask;
+                return GetComponent<IsMesh>().channels;
             }
         }
 
-        public readonly uint VertexSize
+        /// <summary>
+        /// Size of a single vertex in <see cref="float"/>s.
+        /// </summary>
+        public readonly int VertexSize
         {
             get
             {
                 ThrowIfNotLoaded();
 
-                return Channels.GetVertexSize();
+                return GetComponent<IsMesh>().channels.GetVertexSize();
             }
         }
 
+        /// <summary>
+        /// The bounding box of the mesh.
+        /// </summary>
         public readonly (Vector3 min, Vector3 max) Bounds
         {
             get
@@ -176,16 +230,58 @@ namespace Meshes
             }
         }
 
+        /// <summary>
+        /// Version of the mesh.
+        /// </summary>
         public readonly ushort Version => GetComponent<IsMesh>().version;
 
         /// <summary>
-        /// Creates a blank mesh with no data/channels.
+        /// Creates a blank mesh with no channel data or vertices.
         /// </summary>
         public Mesh(World world)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh(1));
+            value = world.CreateEntity(new IsMesh(0, default, 0, 0));
             CreateArray<MeshVertexIndex>();
+        }
+
+        /// <summary>
+        /// Creates a blank mesh with no channel data assigned.
+        /// </summary>
+        public Mesh(World world, MeshChannelMask meshChannels, int vertexCount, int indexCount)
+        {
+            this.world = world;
+            value = world.CreateEntity(new IsMesh(0, meshChannels, vertexCount, indexCount));
+            CreateArray<MeshVertexIndex>(indexCount);
+            if ((meshChannels & MeshChannelMask.Positions) != 0)
+            {
+                CreateArray<MeshVertexPosition>(vertexCount);
+            }
+
+            if ((meshChannels & MeshChannelMask.UVs) != 0)
+            {
+                CreateArray<MeshVertexUV>(vertexCount);
+            }
+
+            if ((meshChannels & MeshChannelMask.Normals) != 0)
+            {
+                CreateArray<MeshVertexNormal>(vertexCount);
+            }
+
+            if ((meshChannels & MeshChannelMask.Tangents) != 0)
+            {
+                CreateArray<MeshVertexTangent>(vertexCount);
+            }
+
+            if ((meshChannels & MeshChannelMask.BiTangents) != 0)
+            {
+                CreateArray<MeshVertexBiTangent>(vertexCount);
+            }
+
+            if ((meshChannels & MeshChannelMask.Colors) != 0)
+            {
+                CreateArray<MeshVertexColor>(vertexCount);
+            }
         }
 
         /// <summary>
@@ -198,47 +294,62 @@ namespace Meshes
             AddReference(modelEntity);
         }
 
+        /// <summary>
+        /// Creates a mesh with the given <paramref name="positions"/> and <paramref name="indices"/>.
+        /// </summary>
         public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh(1));
+            value = world.CreateEntity(new IsMesh(0, MeshChannelMask.Positions, positions.Length, indices.Length));
             CreateArray(positions.As<Vector3, MeshVertexPosition>());
             CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
+        /// <summary>
+        /// Creates a mesh with the given <paramref name="positions"/>, <paramref name="uvs"/> and <paramref name="indices"/>.
+        /// </summary>
         public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh(1));
+            value = world.CreateEntity(new IsMesh(0, MeshChannelMask.Positions | MeshChannelMask.UVs, positions.Length, indices.Length));
             CreateArray(positions.As<Vector3, MeshVertexPosition>());
             CreateArray(uvs.As<Vector2, MeshVertexUV>());
             CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
+        /// <summary>
+        /// Creates a mesh with the given <paramref name="positions"/>, <paramref name="uvs"/>, <paramref name="normals"/> and <paramref name="indices"/>.
+        /// </summary>
         public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<Vector3> normals, ReadOnlySpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh(1));
+            value = world.CreateEntity(new IsMesh(0, MeshChannelMask.Positions | MeshChannelMask.UVs | MeshChannelMask.Normals, positions.Length, indices.Length));
             CreateArray(positions.As<Vector3, MeshVertexPosition>());
             CreateArray(uvs.As<Vector2, MeshVertexUV>());
             CreateArray(normals.As<Vector3, MeshVertexNormal>());
             CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
+        /// <summary>
+        /// Creates a mesh with the given <paramref name="positions"/>, <paramref name="uvs"/>, <paramref name="colors"/> and <paramref name="indices"/>.
+        /// </summary>
         public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<Vector4> colors, ReadOnlySpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh(1));
+            value = world.CreateEntity(new IsMesh(0, MeshChannelMask.Positions | MeshChannelMask.UVs | MeshChannelMask.Colors, positions.Length, indices.Length));
             CreateArray(positions.As<Vector3, MeshVertexPosition>());
             CreateArray(uvs.As<Vector2, MeshVertexUV>());
             CreateArray(colors.As<Vector4, MeshVertexColor>());
             CreateArray(indices.As<uint, MeshVertexIndex>());
         }
 
+        /// <summary>
+        /// Creates a mesh with the given <paramref name="positions"/>, <paramref name="uvs"/>, <paramref name="normals"/>, <paramref name="colors"/> and <paramref name="indices"/>.
+        /// </summary>
         public Mesh(World world, ReadOnlySpan<Vector3> positions, ReadOnlySpan<Vector2> uvs, ReadOnlySpan<Vector3> normals, ReadOnlySpan<Vector4> colors, ReadOnlySpan<uint> indices)
         {
             this.world = world;
-            value = world.CreateEntity(new IsMesh(1));
+            value = world.CreateEntity(new IsMesh(0, MeshChannelMask.Positions | MeshChannelMask.UVs | MeshChannelMask.Normals | MeshChannelMask.Colors, positions.Length, indices.Length));
             CreateArray(positions.As<Vector3, MeshVertexPosition>());
             CreateArray(uvs.As<Vector2, MeshVertexUV>());
             CreateArray(normals.As<Vector3, MeshVertexNormal>());
@@ -252,31 +363,143 @@ namespace Meshes
             archetype.AddArrayType<MeshVertexIndex>();
         }
 
+        /// <inheritdoc/>
         public readonly override string ToString()
         {
             return value.ToString();
         }
 
+        /// <summary>
+        /// Modifies the amount of vertices in the mesh, and resizes the internal arrays.
+        /// </summary>
+        public readonly void SetVertexCount(int newVertexCount)
+        {
+            ThrowIfNotLoaded();
+
+            ref IsMesh mesh = ref GetComponent<IsMesh>();
+            mesh.version++;
+            mesh.vertexCount = newVertexCount;
+
+            if ((mesh.channels & MeshChannelMask.Positions) != 0)
+            {
+                GetArray<MeshVertexPosition>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.UVs) != 0)
+            {
+                GetArray<MeshVertexUV>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.Normals) != 0)
+            {
+                GetArray<MeshVertexNormal>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.Tangents) != 0)
+            {
+                GetArray<MeshVertexTangent>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.BiTangents) != 0)
+            {
+                GetArray<MeshVertexBiTangent>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.Colors) != 0)
+            {
+                GetArray<MeshVertexColor>().Resize(newVertexCount);
+            }
+        }
+
+        /// <summary>
+        /// Resizes the amount of indices this mesh contains.
+        /// </summary>
+        public readonly Span<uint> SetIndexCount(int newIndexCount)
+        {
+            ThrowIfNotLoaded();
+
+            ref IsMesh mesh = ref GetComponent<IsMesh>();
+            mesh.version++;
+            mesh.indexCount = newIndexCount;
+
+            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
+            array.Resize(newIndexCount);
+            return array.AsSpan<uint>();
+        }
+
+        /// <summary>
+        /// Modifies the amount of vertices in the mesh, and resizes the internal arrays.
+        /// </summary>
+        public readonly Span<uint> SetVertexAndIndexCount(int newVertexCount, int newIndexCount)
+        {
+            ThrowIfNotLoaded();
+
+            ref IsMesh mesh = ref GetComponent<IsMesh>();
+            mesh.version++;
+            mesh.vertexCount = newVertexCount;
+            mesh.indexCount = newIndexCount;
+
+            if ((mesh.channels & MeshChannelMask.Positions) != 0)
+            {
+                GetArray<MeshVertexPosition>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.UVs) != 0)
+            {
+                GetArray<MeshVertexUV>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.Normals) != 0)
+            {
+                GetArray<MeshVertexNormal>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.Tangents) != 0)
+            {
+                GetArray<MeshVertexTangent>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.BiTangents) != 0)
+            {
+                GetArray<MeshVertexBiTangent>().Resize(newVertexCount);
+            }
+
+            if ((mesh.channels & MeshChannelMask.Colors) != 0)
+            {
+                GetArray<MeshVertexColor>().Resize(newVertexCount);
+            }
+
+            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
+            array.Resize(newIndexCount);
+            return array.AsSpan<uint>();
+        }
+
+        /// <summary>
+        /// Checks if the mesh contains the given <paramref name="channel"/> of data.
+        /// </summary>
         public readonly bool ContainsChannel(MeshChannel channel)
         {
+            MeshChannelMask channelMask = GetComponent<IsMesh>().channels;
             return channel switch
             {
-                MeshChannel.Position => ContainsPositions,
-                MeshChannel.UV => ContainsUVs,
-                MeshChannel.Normal => ContainsNormals,
-                MeshChannel.Tangent => ContainsTangents,
-                MeshChannel.BiTangent => ContainsBiTangents,
-                MeshChannel.Color => ContainsColors,
+                MeshChannel.Position => (channelMask & MeshChannelMask.Positions) != 0,
+                MeshChannel.UV => (channelMask & MeshChannelMask.UVs) != 0,
+                MeshChannel.Normal => (channelMask & MeshChannelMask.Normals) != 0,
+                MeshChannel.Tangent => (channelMask & MeshChannelMask.Tangents) != 0,
+                MeshChannel.BiTangent => (channelMask & MeshChannelMask.BiTangents) != 0,
+                MeshChannel.Color => (channelMask & MeshChannelMask.Colors) != 0,
                 _ => false,
             };
         }
 
         /// <summary>
-        /// Appends vertex data into the given span, in the order of the channels given.
-        /// <para>Missing channels on the mesh are skipped.</para>
+        /// Appends vertex data into the given <paramref name="destination"/>, in the order of the <paramref name="channels"/> given.
+        /// <para>
+        /// Missing channels on the mesh are skipped.
+        /// </para>
         /// </summary>
-        /// <returns>How many <see cref="float"/>s were added to <paramref name="vertexData"/>.</returns>
-        public readonly int Assemble(Span<float> vertexData, ReadOnlySpan<MeshChannel> channels)
+        /// <returns>Amount of <see cref="float"/>s written to the <paramref name="destination"/>.</returns>
+        public readonly int Assemble(Span<float> destination, ReadOnlySpan<MeshChannel> channels)
         {
             Span<Vector3> positions = default;
             Span<Vector2> uvs = default;
@@ -324,44 +547,44 @@ namespace Meshes
                     if (channel == MeshChannel.Position)
                     {
                         Vector3 position = positions[i];
-                        vertexData[index++] = position.X;
-                        vertexData[index++] = position.Y;
-                        vertexData[index++] = position.Z;
+                        destination[index++] = position.X;
+                        destination[index++] = position.Y;
+                        destination[index++] = position.Z;
                     }
                     else if (channel == MeshChannel.UV)
                     {
                         Vector2 uv = uvs[i];
-                        vertexData[index++] = uv.X;
-                        vertexData[index++] = uv.Y;
+                        destination[index++] = uv.X;
+                        destination[index++] = uv.Y;
                     }
                     else if (channel == MeshChannel.Normal)
                     {
                         Vector3 normal = normals[i];
-                        vertexData[index++] = normal.X;
-                        vertexData[index++] = normal.Y;
-                        vertexData[index++] = normal.Z;
+                        destination[index++] = normal.X;
+                        destination[index++] = normal.Y;
+                        destination[index++] = normal.Z;
                     }
                     else if (channel == MeshChannel.Tangent)
                     {
                         Vector3 tangent = tangents[i];
-                        vertexData[index++] = tangent.X;
-                        vertexData[index++] = tangent.Y;
-                        vertexData[index++] = tangent.Z;
+                        destination[index++] = tangent.X;
+                        destination[index++] = tangent.Y;
+                        destination[index++] = tangent.Z;
                     }
                     else if (channel == MeshChannel.BiTangent)
                     {
                         Vector3 bitangent = biTangents[i];
-                        vertexData[index++] = bitangent.X;
-                        vertexData[index++] = bitangent.Y;
-                        vertexData[index++] = bitangent.Z;
+                        destination[index++] = bitangent.X;
+                        destination[index++] = bitangent.Y;
+                        destination[index++] = bitangent.Z;
                     }
                     else if (channel == MeshChannel.Color)
                     {
                         Vector4 color = colors[i];
-                        vertexData[index++] = color.X;
-                        vertexData[index++] = color.Y;
-                        vertexData[index++] = color.Z;
-                        vertexData[index++] = color.W;
+                        destination[index++] = color.X;
+                        destination[index++] = color.Y;
+                        destination[index++] = color.Z;
+                        destination[index++] = color.W;
                     }
                 }
             }
@@ -369,100 +592,25 @@ namespace Meshes
             return index;
         }
 
-        public readonly void IncrementVersion()
-        {
-            ThrowIfNotLoaded();
-
-            ref IsMesh mesh = ref GetComponent<IsMesh>();
-            mesh.version++;
-        }
-
-        public readonly Collection<Vector3> CreatePositions(int length)
-        {
-            ThrowIfPositionsPresent();
-
-            IncrementVersion();
-            return new(this, CreateArray<MeshVertexPosition>(length).As<Vector3>());
-        }
-
-        public readonly Collection<Vector2> CreateUVs(int length)
-        {
-            ThrowIfUVsPresent();
-
-            IncrementVersion();
-            return new(this, CreateArray<MeshVertexUV>(length).As<Vector2>());
-        }
-
-        public readonly Collection<Vector3> CreateNormals(int length)
-        {
-            ThrowIfNormalsPresent();
-
-            IncrementVersion();
-            return new(this, CreateArray<MeshVertexNormal>(length).As<Vector3>());
-        }
-
-        public readonly Collection<Vector3> CreateTangents(int length)
-        {
-            ThrowIfTangentsPresent();
-
-            IncrementVersion();
-            return new(this, CreateArray<MeshVertexTangent>(length).As<Vector3>());
-        }
-
-        public readonly Collection<Vector3> CreateBiTangents(int length)
-        {
-            ThrowIfBiTangentsPresent();
-
-            IncrementVersion();
-            return new(this, CreateArray<MeshVertexBiTangent>(length).As<Vector3>());
-        }
-
-        public readonly Collection<Vector4> CreateColors(int length)
-        {
-            ThrowIfColorsPresent();
-
-            IncrementVersion();
-            return new(this, CreateArray<MeshVertexColor>(length).As<Vector4>());
-        }
-
-        public readonly void AddIndices(ReadOnlySpan<uint> indices)
-        {
-            IncrementVersion();
-
-            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            array.AddRange(indices.As<uint, MeshVertexIndex>());
-        }
-
-        public readonly void AddIndex(uint index)
-        {
-            IncrementVersion();
-
-            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            array.Add(index);
-        }
-
-        public readonly void AddTriangle(uint a, uint b, uint c)
-        {
-            IncrementVersion();
-
-            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
-            Span<MeshVertexIndex> span = stackalloc MeshVertexIndex[3];
-            span[0] = new(a);
-            span[1] = new(b);
-            span[2] = new(c);
-            array.AddRange(span);
-        }
-
+        /// <summary>
+        /// Creates a new cube mesh.
+        /// </summary>
         public static Mesh CreateCube(World world)
         {
             return new(world, BuiltInMeshes.Cube.positions, BuiltInMeshes.Cube.uvs, BuiltInMeshes.Cube.colors, BuiltInMeshes.Cube.indices);
         }
 
+        /// <summary>
+        /// Creates a new quad starting at -0.5 on the XY plane.
+        /// </summary>
         public static Mesh CreateCenteredQuad(World world)
         {
             return new(world, BuiltInMeshes.Quad.centeredPositions, BuiltInMeshes.Quad.uvs, BuiltInMeshes.Quad.normals, BuiltInMeshes.Quad.colors, BuiltInMeshes.Quad.indices);
         }
 
+        /// <summary>
+        /// Creates a new quad starting at 0 on the XY plane.
+        /// </summary>
         public static Mesh CreateBottomLeftQuad(World world)
         {
             return new(world, BuiltInMeshes.Quad.bottomLeftPositions, BuiltInMeshes.Quad.uvs, BuiltInMeshes.Quad.normals, BuiltInMeshes.Quad.colors, BuiltInMeshes.Quad.indices);
@@ -487,29 +635,11 @@ namespace Meshes
         }
 
         [Conditional("DEBUG")]
-        private readonly void ThrowIfPositionsPresent()
-        {
-            if (ContainsPositions)
-            {
-                throw new InvalidOperationException($"Mesh `{value}` already contains positions");
-            }
-        }
-
-        [Conditional("DEBUG")]
         private readonly void ThrowIfUVsMissing()
         {
             if (!ContainsUVs)
             {
                 throw new InvalidOperationException($"Mesh `{value}` does not contain UVs");
-            }
-        }
-
-        [Conditional("DEBUG")]
-        private readonly void ThrowIfUVsPresent()
-        {
-            if (ContainsUVs)
-            {
-                throw new InvalidOperationException($"Mesh `{value}` already contains UVs");
             }
         }
 
@@ -523,29 +653,11 @@ namespace Meshes
         }
 
         [Conditional("DEBUG")]
-        private readonly void ThrowIfNormalsPresent()
-        {
-            if (ContainsNormals)
-            {
-                throw new InvalidOperationException($"Mesh `{value}` already contains normals");
-            }
-        }
-
-        [Conditional("DEBUG")]
         private readonly void ThrowIfTangentsMissing()
         {
             if (!ContainsTangents)
             {
                 throw new InvalidOperationException($"Mesh `{value}` does not contain tangents");
-            }
-        }
-
-        [Conditional("DEBUG")]
-        private readonly void ThrowIfTangentsPresent()
-        {
-            if (ContainsTangents)
-            {
-                throw new InvalidOperationException($"Mesh `{value}` already contains tangents");
             }
         }
 
@@ -559,15 +671,6 @@ namespace Meshes
         }
 
         [Conditional("DEBUG")]
-        private readonly void ThrowIfBiTangentsPresent()
-        {
-            if (ContainsBiTangents)
-            {
-                throw new InvalidOperationException($"Mesh `{value}` already contains bi-tangents");
-            }
-        }
-
-        [Conditional("DEBUG")]
         private readonly void ThrowIfColorsMissing()
         {
             if (!ContainsColors)
@@ -576,80 +679,13 @@ namespace Meshes
             }
         }
 
-        [Conditional("DEBUG")]
-        private readonly void ThrowIfColorsPresent()
+        /// <summary>
+        /// Increments the version of the mesh.
+        /// </summary>
+        public readonly void IncrementVersion()
         {
-            if (ContainsColors)
-            {
-                throw new InvalidOperationException($"Mesh `{value}` already contains colors");
-            }
-        }
-
-        public ref struct Collection<T> where T : unmanaged
-        {
-            private readonly Mesh mesh;
-            private readonly Values<T> array;
-            private bool changed;
-
-            public T this[int index]
-            {
-                readonly get => array[index];
-                set
-                {
-                    array[index] = value;
-                    TryIncrementVersion();
-                }
-            }
-
-            public int Length
-            {
-                readonly get => array.Length;
-                set
-                {
-                    array.Resize(value, default);
-                    TryIncrementVersion();
-                }
-            }
-
-            internal Collection(Mesh mesh, Values<T> array)
-            {
-                this.mesh = mesh;
-                this.array = array;
-                changed = false;
-            }
-
-            private void TryIncrementVersion()
-            {
-                if (!changed)
-                {
-                    mesh.IncrementVersion();
-                    changed = true;
-                }
-            }
-
-            /// <summary>
-            /// Resizes the array to fit <paramref name="source"/> and copies from it.
-            /// </summary>
-            public void CopyFrom(ReadOnlySpan<T> source)
-            {
-                array.CopyFrom(source);
-                TryIncrementVersion();
-            }
-
-            public readonly Span<T> AsSpan()
-            {
-                return array;
-            }
-
-            public static implicit operator Span<T>(Collection<T> collection)
-            {
-                return collection.array;
-            }
-
-            public static implicit operator ReadOnlySpan<T>(Collection<T> collection)
-            {
-                return collection.array;
-            }
+            ref IsMesh mesh = ref GetComponent<IsMesh>();
+            mesh.version++;
         }
     }
 }

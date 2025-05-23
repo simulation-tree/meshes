@@ -2,10 +2,19 @@
 
 namespace Meshes
 {
+    /// <summary>
+    /// Contains pre-defined mesh data.
+    /// </summary>
     public static class BuiltInMeshes
     {
+        /// <summary>
+        /// Data for a simple quad.
+        /// </summary>
         public static class Quad
         {
+            /// <summary>
+            /// Vertex positions starting at -0.5 on the XY plane.
+            /// </summary>
             public static readonly Vector3[] centeredPositions =
             [
                 new(-0.5f, -0.5f, 0f),
@@ -14,6 +23,9 @@ namespace Meshes
                 new(-0.5f, 0.5f, 0f)
             ];
 
+            /// <summary>
+            /// Vertex positions starting at 0 on the XY plane.
+            /// </summary>
             public static readonly Vector3[] bottomLeftPositions =
             [
                 new(0f, 0f, 0f),
@@ -22,6 +34,9 @@ namespace Meshes
                 new(0f, 1f, 0f)
             ];
 
+            /// <summary>
+            /// UVs.
+            /// </summary>
             public static readonly Vector2[] uvs =
             [
                 new(0, 0),
@@ -30,6 +45,9 @@ namespace Meshes
                 new(0, 1)
             ];
 
+            /// <summary>
+            /// Normals.
+            /// </summary>
             public static readonly Vector3[] normals =
             [
                 new(0, 0, 1),
@@ -38,6 +56,9 @@ namespace Meshes
                 new(0, 0, 1)
             ];
 
+            /// <summary>
+            /// Colors.
+            /// </summary>
             public static readonly Vector4[] colors =
             [
                 new(1, 1, 1, 1),
@@ -46,6 +67,9 @@ namespace Meshes
                 new(1, 1, 1, 1)
             ];
 
+            /// <summary>
+            /// Indices.
+            /// </summary>
             public static readonly uint[] indices =
             [
                 0, 1, 2,
@@ -53,20 +77,29 @@ namespace Meshes
             ];
         }
 
+        /// <summary>
+        /// Data for a 3D cube.
+        /// </summary>
         public static class Cube
         {
+            /// <summary>
+            /// Vertex positions starting at -0.5 and ending at 0.5.
+            /// </summary>
             public static readonly Vector3[] positions =
             [
-                new(-1, 1, -1),
-                new(1, 1, -1),
-                new(1, -1, -1),
-                new(-1, -1, -1),
-                new(-1, 1, 1),
-                new(1, 1, 1),
-                new(1, -1, 1),
-                new(-1, -1, 1)
+                new(-0.5f, 0.5f, -0.5f),
+                new(0.5f, 0.5f, -0.5f),
+                new(0.5f, -0.5f, -0.5f),
+                new(-0.5f, -0.5f, -0.5f),
+                new(-0.5f, 0.5f, 0.5f),
+                new(0.5f, 0.5f, 0.5f),
+                new(0.5f, -0.5f, 0.5f),
+                new(-0.5f, -0.5f, 0.5f)
             ];
 
+            /// <summary>
+            /// UVs.
+            /// </summary>
             public static readonly Vector2[] uvs =
             [
                 new(0, 0),
@@ -75,6 +108,9 @@ namespace Meshes
                 new(0, 1)
             ];
 
+            /// <summary>
+            /// Colors.
+            /// </summary>
             public static readonly Vector4[] colors =
             [
                 new(1, 1, 1, 1),
@@ -87,6 +123,9 @@ namespace Meshes
                 new(1, 1, 1, 1)
             ];
 
+            /// <summary>
+            /// Indices.
+            /// </summary>
             public static readonly uint[] indices =
             [
                 0, 1, 2, 2, 3, 0,

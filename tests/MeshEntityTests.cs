@@ -11,10 +11,10 @@ namespace Meshes.Tests
         public void CreateQuadMesh()
         {
             using World world = CreateWorld();
-            Mesh mesh = new(world);
-            Mesh.Collection<Vector3> positions = mesh.CreatePositions(4);
-            Mesh.Collection<Vector4> colors = mesh.CreateColors(4);
-            Mesh.Collection<Vector2> uvs = mesh.CreateUVs(4);
+            Span<Vector3> positions = stackalloc Vector3[4];
+            Span<Vector4> colors = stackalloc Vector4[4];
+            Span<Vector2> uvs = stackalloc Vector2[4];
+            Span<uint> indices = stackalloc uint[6];
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
             positions[2] = new(1f, 1f, 0f);
@@ -27,6 +27,13 @@ namespace Meshes.Tests
             uvs[1] = new(1f, 0f);
             uvs[2] = new(1f, 1f);
             uvs[3] = new(0f, 1f);
+            indices[0] = 0;
+            indices[1] = 1;
+            indices[2] = 2;
+            indices[3] = 2;
+            indices[4] = 3;
+            indices[5] = 0;
+            Mesh mesh = new(world, positions, uvs, colors, indices);
             Assert.That(mesh.ContainsPositions, Is.True);
             Assert.That(mesh.VertexCount, Is.EqualTo(4));
             Assert.That(mesh.ContainsNormals, Is.False);
@@ -40,57 +47,41 @@ namespace Meshes.Tests
         }
 
         [Test]
-        public void CheckMeshCollection()
-        {
-            using World world = CreateWorld();
-            Mesh mesh = new(world);
-            Assert.That(mesh.Version, Is.EqualTo(1));
-
-            Mesh.Collection<Vector3> positions = mesh.CreatePositions(3);
-            positions[0] = new(0f, 0f, 0f);
-            positions[1] = new(1f, 0f, 0f);
-            positions[2] = new(1f, 1f, 0f);
-
-            Assert.That(mesh.Version, Is.EqualTo(3));
-            Assert.That(positions.Length, Is.EqualTo(3));
-            Assert.That(mesh.IndexCount, Is.EqualTo(0));
-            mesh.AddTriangle(0, 1, 2);
-
-            Assert.That(mesh.VertexCount, Is.EqualTo(3));
-            Assert.That(mesh.IndexCount, Is.EqualTo(3));
-        }
-
-        [Test]
         public void AssembleForRendering()
         {
             using World world = CreateWorld();
-            Mesh quadMesh = new(world);
-            Mesh.Collection<Vector3> positions = quadMesh.CreatePositions(4);
+            Span<Vector3> positions = stackalloc Vector3[4];
             positions[0] = new(0f, 0f, 0f);
             positions[1] = new(1f, 0f, 0f);
             positions[2] = new(1f, 1f, 0f);
             positions[3] = new(0f, 1f, 0f);
 
-            Mesh.Collection<Vector4> colors = quadMesh.CreateColors(4);
+            Span<Vector4> colors = stackalloc Vector4[4];
             colors[0] = new(1f, 0f, 0f, 1f);
             colors[1] = new(0f, 1f, 0f, 1f);
             colors[2] = new(0f, 0f, 1f, 1f);
             colors[3] = new(1f, 1f, 1f, 1f);
 
-            Mesh.Collection<Vector2> uvs = quadMesh.CreateUVs(4);
+            Span<Vector2> uvs = stackalloc Vector2[4];
             uvs[0] = new(0f, 0f);
             uvs[1] = new(1f, 0f);
             uvs[2] = new(1f, 1f);
             uvs[3] = new(0f, 1f);
 
-            Mesh.Collection<Vector3> normals = quadMesh.CreateNormals(4);
+            Span<Vector3> normals = stackalloc Vector3[4];
             normals[0] = new(0f, 0f, 1f);
             normals[1] = new(0f, 0f, 1f);
             normals[2] = new(0f, 0f, 1f);
             normals[3] = new(0f, 0f, 1f);
 
-            quadMesh.AddTriangle(0, 1, 2);
-            quadMesh.AddTriangle(2, 3, 0);
+            Span<uint> indices = stackalloc uint[6];
+            indices[0] = 0;
+            indices[1] = 1;
+            indices[2] = 2;
+            indices[3] = 2;
+            indices[4] = 3;
+            indices[5] = 0;
+            Mesh quadMesh = new(world, positions, uvs, normals, colors, indices);
 
             Span<MeshChannel> channels = [MeshChannel.Position, MeshChannel.Normal, MeshChannel.UV];
             int vertexSize = channels.GetVertexSize();
@@ -123,6 +114,23 @@ namespace Meshes.Tests
                 Assert.That(cu, Is.EqualTo(uvs[v].X));
                 Assert.That(cv, Is.EqualTo(uvs[v].Y));
             }
+        }
+
+        [Test]
+        public void ModifyMesh()
+        {
+            using World world = CreateWorld();
+            Mesh mesh = Mesh.CreateBottomLeftQuad(world);
+            Assert.That(mesh.VertexCount, Is.EqualTo(4));
+            Assert.That(mesh.ContainsPositions, Is.True);
+            Assert.That(mesh.ContainsNormals, Is.True);
+            Assert.That(mesh.ContainsUVs, Is.True);
+            Assert.That(mesh.ContainsColors, Is.True);
+            Assert.That(mesh.ContainsTangents, Is.False);
+            Assert.That(mesh.VertexSize, Is.EqualTo(3 + 3 + 2 + 4));
+            Assert.That(mesh.IndexCount, Is.EqualTo(6));
+            Assert.That(mesh.Version, Is.EqualTo(0));
+            mesh.IncrementVersion();
         }
     }
 }

@@ -1,25 +1,35 @@
 ﻿using System;
 using System.Numerics;
+using Types;
 
 namespace Meshes
 {
+    /// <summary>
+    /// Extension class mesh channels.
+    /// </summary>
     public static class MeshChannelExtensions
     {
-        public static Type GetCollectionType(this MeshChannel channel)
+        /// <summary>
+        /// Retrieves the intended data type for the given <paramref name="channel"/>.
+        /// </summary>
+        public static TypeMetadata GetCollectionType(this MeshChannel channel)
         {
             return channel switch
             {
-                MeshChannel.Position => typeof(Vector3),
-                MeshChannel.UV => typeof(Vector2),
-                MeshChannel.Normal => typeof(Vector3),
-                MeshChannel.Tangent => typeof(Vector3),
-                MeshChannel.BiTangent => typeof(Vector3),
-                MeshChannel.Color => typeof(Vector4),
+                MeshChannel.Position => TypeMetadata.Get<Vector3>(),
+                MeshChannel.UV => TypeMetadata.Get<Vector2>(),
+                MeshChannel.Normal => TypeMetadata.Get<Vector3>(),
+                MeshChannel.Tangent => TypeMetadata.Get<Vector3>(),
+                MeshChannel.BiTangent => TypeMetadata.Get<Vector3>(),
+                MeshChannel.Color => TypeMetadata.Get<Vector4>(),
                 _ => throw new NotSupportedException($"Unsupported channel `{channel}`")
             };
         }
 
-        public static MeshChannelMask AddChannel(ref MeshChannelMask mask, MeshChannel channel)
+        /// <summary>
+        /// Modifies the <paramref name="mask"/> to include the given <paramref name="channel"/>.
+        /// </summary>
+        public static MeshChannelMask AddChannel(this ref MeshChannelMask mask, MeshChannel channel)
         {
             return channel switch
             {
@@ -33,6 +43,9 @@ namespace Meshes
             };
         }
 
+        /// <summary>
+        /// Retrieves the channel mask for the given span of <paramref name="channels"/>.
+        /// </summary>
         public static MeshChannelMask GetChannelMask(this ReadOnlySpan<MeshChannel> channels)
         {
             MeshChannelMask mask = 0;
@@ -54,9 +67,12 @@ namespace Meshes
             return mask;
         }
 
-        public static uint GetVertexSize(this MeshChannelMask mask)
+        /// <summary>
+        /// Retrieves the size in <see cref="float"/>s for a single vertex based on the given <paramref name="mask"/>.
+        /// </summary>
+        public static int GetVertexSize(this MeshChannelMask mask)
         {
-            uint size = 0;
+            int size = 0;
             if ((mask & MeshChannelMask.Positions) != 0)
             {
                 size += 3;
@@ -90,6 +106,9 @@ namespace Meshes
             return size;
         }
 
+        /// <summary>
+        /// Retrieves the size in <see cref="float"/>s for a single vertex based on the given span of <paramref name="channels"/>.
+        /// </summary>
         public static int GetVertexSize(this ReadOnlySpan<MeshChannel> channels)
         {
             int size = 0;
@@ -111,6 +130,9 @@ namespace Meshes
             return size;
         }
 
+        /// <summary>
+        /// Retrieves the size in <see cref="float"/>s for a single vertex based on the given span of <paramref name="channels"/>.
+        /// </summary>
         public static int GetVertexSize(this Span<MeshChannel> channels)
         {
             int size = 0;
