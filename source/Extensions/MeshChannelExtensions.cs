@@ -27,18 +27,18 @@ namespace Meshes
         }
 
         /// <summary>
-        /// Modifies the <paramref name="mask"/> to include the given <paramref name="channel"/>.
+        /// Modifies the <paramref name="channelMask"/> to include the given <paramref name="channel"/>.
         /// </summary>
-        public static MeshChannelMask AddChannel(this ref MeshChannelMask mask, MeshChannel channel)
+        public static MeshChannelMask AddChannel(this ref MeshChannelMask channelMask, MeshChannel channel)
         {
             return channel switch
             {
-                MeshChannel.Position => mask |= MeshChannelMask.Positions,
-                MeshChannel.UV => mask |= MeshChannelMask.UVs,
-                MeshChannel.Normal => mask |= MeshChannelMask.Normals,
-                MeshChannel.Tangent => mask |= MeshChannelMask.Tangents,
-                MeshChannel.BiTangent => mask |= MeshChannelMask.BiTangents,
-                MeshChannel.Color => mask |= MeshChannelMask.Colors,
+                MeshChannel.Position => channelMask |= MeshChannelMask.Positions,
+                MeshChannel.UV => channelMask |= MeshChannelMask.UVs,
+                MeshChannel.Normal => channelMask |= MeshChannelMask.Normals,
+                MeshChannel.Tangent => channelMask |= MeshChannelMask.Tangents,
+                MeshChannel.BiTangent => channelMask |= MeshChannelMask.BiTangents,
+                MeshChannel.Color => channelMask |= MeshChannelMask.Colors,
                 _ => throw new NotSupportedException($"Unsupported channel `{channel}`")
             };
         }
@@ -68,37 +68,37 @@ namespace Meshes
         }
 
         /// <summary>
-        /// Retrieves the size in <see cref="float"/>s for a single vertex based on the given <paramref name="mask"/>.
+        /// Retrieves the size in <see cref="float"/>s for a single vertex based on the given <paramref name="channelMask"/>.
         /// </summary>
-        public static int GetVertexSize(this MeshChannelMask mask)
+        public static int GetVertexSize(this MeshChannelMask channelMask)
         {
             int size = 0;
-            if ((mask & MeshChannelMask.Positions) != 0)
+            if ((channelMask & MeshChannelMask.Positions) != 0)
             {
                 size += 3;
             }
 
-            if ((mask & MeshChannelMask.UVs) != 0)
+            if ((channelMask & MeshChannelMask.UVs) != 0)
             {
                 size += 2;
             }
 
-            if ((mask & MeshChannelMask.Normals) != 0)
+            if ((channelMask & MeshChannelMask.Normals) != 0)
             {
                 size += 3;
             }
 
-            if ((mask & MeshChannelMask.Tangents) != 0)
+            if ((channelMask & MeshChannelMask.Tangents) != 0)
             {
                 size += 3;
             }
 
-            if ((mask & MeshChannelMask.BiTangents) != 0)
+            if ((channelMask & MeshChannelMask.BiTangents) != 0)
             {
                 size += 3;
             }
 
-            if ((mask & MeshChannelMask.Colors) != 0)
+            if ((channelMask & MeshChannelMask.Colors) != 0)
             {
                 size += 4;
             }
@@ -152,6 +152,23 @@ namespace Meshes
             }
 
             return size;
+        }
+
+        /// <summary>
+        /// Checks if the given <paramref name="channel"/> is contained in the <paramref name="channelMask"/>.
+        /// </summary>
+        public static bool Contains(this MeshChannelMask channelMask, MeshChannel channel)
+        {
+            return channel switch
+            {
+                MeshChannel.Position => (channelMask & MeshChannelMask.Positions) != 0,
+                MeshChannel.UV => (channelMask & MeshChannelMask.UVs) != 0,
+                MeshChannel.Normal => (channelMask & MeshChannelMask.Normals) != 0,
+                MeshChannel.Tangent => (channelMask & MeshChannelMask.Tangents) != 0,
+                MeshChannel.BiTangent => (channelMask & MeshChannelMask.BiTangents) != 0,
+                MeshChannel.Color => (channelMask & MeshChannelMask.Colors) != 0,
+                _ => false,
+            };
         }
     }
 }

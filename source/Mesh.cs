@@ -479,17 +479,7 @@ namespace Meshes
         /// </summary>
         public readonly bool ContainsChannel(MeshChannel channel)
         {
-            MeshChannelMask channelMask = GetComponent<IsMesh>().channels;
-            return channel switch
-            {
-                MeshChannel.Position => (channelMask & MeshChannelMask.Positions) != 0,
-                MeshChannel.UV => (channelMask & MeshChannelMask.UVs) != 0,
-                MeshChannel.Normal => (channelMask & MeshChannelMask.Normals) != 0,
-                MeshChannel.Tangent => (channelMask & MeshChannelMask.Tangents) != 0,
-                MeshChannel.BiTangent => (channelMask & MeshChannelMask.BiTangents) != 0,
-                MeshChannel.Color => (channelMask & MeshChannelMask.Colors) != 0,
-                _ => false,
-            };
+            return GetComponent<IsMesh>().channels.Contains(channel);
         }
 
         /// <summary>
@@ -500,6 +490,18 @@ namespace Meshes
         /// </summary>
         /// <returns>Amount of <see cref="float"/>s written to the <paramref name="destination"/>.</returns>
         public readonly int Assemble(Span<float> destination, ReadOnlySpan<MeshChannel> channels)
+        {
+            return Assemble(world, value, destination, channels);
+        }
+
+        /// <summary>
+        /// Appends vertex data into the given <paramref name="destination"/>, in the order of the <paramref name="channels"/> given.
+        /// <para>
+        /// Missing channels on the mesh are skipped.
+        /// </para>
+        /// </summary>
+        /// <returns>Amount of <see cref="float"/>s written to the <paramref name="destination"/>.</returns>
+        public static int Assemble(World world, uint entity, Span<float> destination, ReadOnlySpan<MeshChannel> channels)
         {
             Span<Vector3> positions = default;
             Span<Vector2> uvs = default;
@@ -513,27 +515,27 @@ namespace Meshes
                 MeshChannel channel = channels[i];
                 if (channel == MeshChannel.Position)
                 {
-                    positions = GetArray<MeshVertexPosition>().AsSpan<Vector3>();
+                    positions = world.GetArray<MeshVertexPosition>(entity).AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.UV)
                 {
-                    uvs = GetArray<MeshVertexUV>().AsSpan<Vector2>();
+                    uvs = world.GetArray<MeshVertexUV>(entity).AsSpan<Vector2>();
                 }
                 else if (channel == MeshChannel.Normal)
                 {
-                    normals = GetArray<MeshVertexNormal>().AsSpan<Vector3>();
+                    normals = world.GetArray<MeshVertexNormal>(entity).AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.Tangent)
                 {
-                    tangents = GetArray<MeshVertexTangent>().AsSpan<Vector3>();
+                    tangents = world.GetArray<MeshVertexTangent>(entity).AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.BiTangent)
                 {
-                    biTangents = GetArray<MeshVertexBiTangent>().AsSpan<Vector3>();
+                    biTangents = world.GetArray<MeshVertexBiTangent>(entity).AsSpan<Vector3>();
                 }
                 else if (channel == MeshChannel.Color)
                 {
-                    colors = GetArray<MeshVertexColor>().AsSpan<Vector4>();
+                    colors = world.GetArray<MeshVertexColor>(entity).AsSpan<Vector4>();
                 }
             }
 
