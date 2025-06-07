@@ -47,9 +47,9 @@
 
   <ItemGroup>
     <Content Include="bin/Debug/net9.0/Meshes.dll" Pack="true" PackagePath="tools/debug/Meshes.dll" Visible="false"/>
-    <Content Include="bin/Debug/net9.0/Meshes.xml" Pack="true" PackagePath="tools/debug/Meshes.xml" Visible="false"/>
+    <Content Include="bin/Debug/net9.0/Meshes.xml" Pack="true" PackagePath="tools/debug/Meshes.xml" Visible="false" Condition="Exists('bin/Debug/net9.0/Meshes.xml')"/>
     <Content Include="bin/Release/net9.0/Meshes.dll" Pack="true" PackagePath="tools/release/Meshes.dll" Visible="false"/>
-    <Content Include="bin/Release/net9.0/Meshes.xml" Pack="true" PackagePath="tools/release/Meshes.xml" Visible="false"/>
+    <Content Include="bin/Release/net9.0/Meshes.xml" Pack="true" PackagePath="tools/release/Meshes.xml" Visible="false" Condition="Exists('bin/Release/net9.0/Meshes.xml')"/>
     <Content Include="build/Meshes.targets" Pack="true" PackagePath="build/Meshes.targets" Visible="false"/>
   </ItemGroup>
 
