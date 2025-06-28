@@ -380,34 +380,35 @@ namespace Meshes
             mesh.version++;
             mesh.vertexCount = newVertexCount;
 
+            world.Schema.GetArrayTypes<MeshVertexPosition, MeshVertexUV, MeshVertexNormal, MeshVertexTangent, MeshVertexBiTangent, MeshVertexColor>(out int positionType, out int uvType, out int normalType, out int tangentType, out int biTangentType, out int colorType);
             if ((mesh.channels & MeshChannelMask.Positions) != 0)
             {
-                GetArray<MeshVertexPosition>().Resize(newVertexCount);
+                GetArray<MeshVertexPosition>(positionType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.UVs) != 0)
             {
-                GetArray<MeshVertexUV>().Resize(newVertexCount);
+                GetArray<MeshVertexUV>(uvType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.Normals) != 0)
             {
-                GetArray<MeshVertexNormal>().Resize(newVertexCount);
+                GetArray<MeshVertexNormal>(normalType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.Tangents) != 0)
             {
-                GetArray<MeshVertexTangent>().Resize(newVertexCount);
+                GetArray<MeshVertexTangent>(tangentType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.BiTangents) != 0)
             {
-                GetArray<MeshVertexBiTangent>().Resize(newVertexCount);
+                GetArray<MeshVertexBiTangent>(biTangentType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.Colors) != 0)
             {
-                GetArray<MeshVertexColor>().Resize(newVertexCount);
+                GetArray<MeshVertexColor>(colorType).Resize(newVertexCount);
             }
         }
 
@@ -441,37 +442,38 @@ namespace Meshes
             mesh.vertexCount = newVertexCount;
             mesh.indexCount = newIndexCount;
 
+            world.Schema.GetArrayTypes<MeshVertexPosition, MeshVertexUV, MeshVertexNormal, MeshVertexTangent, MeshVertexBiTangent, MeshVertexColor, MeshVertexIndex>(out int positionType, out int uvType, out int normalType, out int tangentType, out int biTangentType, out int colorType, out int indexType);
             if ((mesh.channels & MeshChannelMask.Positions) != 0)
             {
-                GetArray<MeshVertexPosition>().Resize(newVertexCount);
+                GetArray<MeshVertexPosition>(positionType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.UVs) != 0)
             {
-                GetArray<MeshVertexUV>().Resize(newVertexCount);
+                GetArray<MeshVertexUV>(uvType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.Normals) != 0)
             {
-                GetArray<MeshVertexNormal>().Resize(newVertexCount);
+                GetArray<MeshVertexNormal>(normalType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.Tangents) != 0)
             {
-                GetArray<MeshVertexTangent>().Resize(newVertexCount);
+                GetArray<MeshVertexTangent>(tangentType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.BiTangents) != 0)
             {
-                GetArray<MeshVertexBiTangent>().Resize(newVertexCount);
+                GetArray<MeshVertexBiTangent>(biTangentType).Resize(newVertexCount);
             }
 
             if ((mesh.channels & MeshChannelMask.Colors) != 0)
             {
-                GetArray<MeshVertexColor>().Resize(newVertexCount);
+                GetArray<MeshVertexColor>(colorType).Resize(newVertexCount);
             }
 
-            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>();
+            Values<MeshVertexIndex> array = GetArray<MeshVertexIndex>(indexType);
             array.Resize(newIndexCount);
             return array.AsSpan<uint>();
         }
@@ -505,6 +507,19 @@ namespace Meshes
         /// <returns>Amount of <see cref="float"/>s written to the <paramref name="destination"/>.</returns>
         public static int Assemble(World world, uint entity, Span<float> destination, ReadOnlySpan<MeshChannel> channels)
         {
+            world.Schema.GetArrayTypes<MeshVertexPosition, MeshVertexUV, MeshVertexNormal, MeshVertexTangent, MeshVertexBiTangent, MeshVertexColor>(out int positionType, out int uvType, out int normalType, out int tangentType, out int biTangentType, out int colorType);
+            return Assemble(world, entity, destination, channels, positionType, uvType, normalType, tangentType, biTangentType, colorType);
+        }
+
+        /// <summary>
+        /// Appends vertex data into the given <paramref name="destination"/>, in the order of the <paramref name="channels"/> given.
+        /// <para>
+        /// Missing channels on the mesh are skipped.
+        /// </para>
+        /// </summary>
+        /// <returns>Amount of <see cref="float"/>s written to the <paramref name="destination"/>.</returns>
+        public static int Assemble(World world, uint entity, Span<float> destination, ReadOnlySpan<MeshChannel> channels, int positionType, int uvType, int normalType, int tangentType, int biTangentType, int colorType)
+        {
             Span<Vector3> positions = default;
             Span<Vector2> uvs = default;
             Span<Vector3> normals = default;
@@ -515,32 +530,32 @@ namespace Meshes
             ReadOnlySpan<byte> channelsAsByte = channels.As<MeshChannel, byte>();
             if (channelsAsByte.Contains((byte)MeshChannel.Position))
             {
-                positions = world.GetArray<MeshVertexPosition>(entity).AsSpan<Vector3>();
+                positions = world.GetArray<Vector3>(entity, positionType);
             }
 
             if (channelsAsByte.Contains((byte)MeshChannel.UV))
             {
-                uvs = world.GetArray<MeshVertexUV>(entity).AsSpan<Vector2>();
+                uvs = world.GetArray<Vector2>(entity, uvType);
             }
 
             if (channelsAsByte.Contains((byte)MeshChannel.Normal))
             {
-                normals = world.GetArray<MeshVertexNormal>(entity).AsSpan<Vector3>();
+                normals = world.GetArray<Vector3>(entity, normalType);
             }
 
             if (channelsAsByte.Contains((byte)MeshChannel.Tangent))
             {
-                tangents = world.GetArray<MeshVertexTangent>(entity).AsSpan<Vector3>();
+                tangents = world.GetArray<Vector3>(entity, tangentType);
             }
 
             if (channelsAsByte.Contains((byte)MeshChannel.BiTangent))
             {
-                biTangents = world.GetArray<MeshVertexBiTangent>(entity).AsSpan<Vector3>();
+                biTangents = world.GetArray<Vector3>(entity, biTangentType);
             }
 
             if (channelsAsByte.Contains((byte)MeshChannel.Color))
             {
-                colors = world.GetArray<MeshVertexColor>(entity).AsSpan<Vector4>();
+                colors = world.GetArray<Vector4>(entity, colorType);
             }
 
             int vertexCount = positions.Length;
