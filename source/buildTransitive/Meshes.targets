@@ -3,7 +3,7 @@
 
     <ItemGroup>
         <Reference Include="Meshes">
-            <HintPath>$(MSBuildThisFileDirectory)..\lib\net9.0\$(Configuration)\Meshes.dll</HintPath>
+            <HintPath>$(MSBuildThisFileDirectory)..\lib\$(TargetFramework)\$(Configuration)\Meshes.dll</HintPath>
         </Reference>
     </ItemGroup>
 
