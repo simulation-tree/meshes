@@ -62,7 +62,10 @@ namespace Meshes.Components
         /// <inheritdoc/>
         public readonly override int GetHashCode()
         {
-            return HashCode.Combine(version, channels);
+            int hash = 17;
+            hash = hash * 31 + version;
+            hash = hash * 31 + channels.GetHashCode();
+            return hash;
         }
 
         /// <inheritdoc/>
